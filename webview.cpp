@@ -362,18 +362,23 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     if (page()->contextMenuData().linkUrl().isValid()) {
         menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose, true);
-        menu->addAction(page()->action(QWebEnginePage::OpenLinkInThisWindow));
-        menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewWindow));
+
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewTab));
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewBackgroundTab));
+
+        menu->addAction(page()->action(QWebEnginePage::OpenLinkInThisWindow));
+        menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewWindow));
+
         menu->addSeparator();
         menu->addAction(page()->action(QWebEnginePage::DownloadLinkToDisk));
         menu->addAction(page()->action(QWebEnginePage::CopyLinkToClipboard));
     } else {
         menu = page()->createStandardContextMenu();
     }
+
     if (page()->contextMenuData().selectedText().isEmpty())
         menu->addAction(page()->action(QWebEnginePage::SavePage));
+
     menu->popup(event->globalPos());
 }
 
