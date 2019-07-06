@@ -70,6 +70,8 @@
 
 #include <QtCore/QDebug>
 
+#define NO_CUSTOM_CLOSE_BUTTON
+
 ExLineEdit::ExLineEdit(QWidget *parent)
     : QWidget(parent)
     , m_leftWidget(0)
@@ -94,12 +96,16 @@ ExLineEdit::ExLineEdit(QWidget *parent)
     clearPalette.setBrush(QPalette::Base, QBrush(Qt::transparent));
     m_lineEdit->setPalette(clearPalette);
 
+#ifdef NO_CUSTOM_CLOSE_BUTTON
+    m_lineEdit->setClearButtonEnabled(true);
+#else
     // clearButton
     m_clearButton = new ClearButton(this);
     connect(m_clearButton, SIGNAL(clicked()),
             m_lineEdit, SLOT(clear()));
     connect(m_lineEdit, SIGNAL(textChanged(QString)),
             m_clearButton, SLOT(textChanged(QString)));
+#endif
 }
 
 void ExLineEdit::setLeftWidget(QWidget *widget)
@@ -131,13 +137,18 @@ void ExLineEdit::updateGeometries()
     int m_leftWidgetHeight = m_leftWidget->height();
     m_leftWidget->setGeometry(rect.x() + 2,          rect.y() + (height - m_leftWidgetHeight)/2,
                               m_leftWidget->width(), m_leftWidget->height());
-
+#ifdef NO_CUSTOM_CLOSE_BUTTON
+    int clearButtonWidth = 0;
+#else
     int clearButtonWidth = this->height();
+#endif
+
     m_lineEdit->setGeometry(m_leftWidget->x() + m_leftWidget->width(),        0,
                             width - clearButtonWidth - m_leftWidget->width(), this->height());
-
+#ifndef NO_CUSTOM_CLOSE_BUTTON
     m_clearButton->setGeometry(this->width() - clearButtonWidth, 0,
                                clearButtonWidth, this->height());
+#endif
 }
 
 void ExLineEdit::initStyleOption(QStyleOptionFrame *option) const
