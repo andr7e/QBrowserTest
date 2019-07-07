@@ -332,8 +332,8 @@ void UrlLineEdit::paintEvent(QPaintEvent *event)
 {
     QPalette p = palette();
     if (m_webView && m_webView->url().scheme() == QLatin1String("https")) {
-        QColor lightYellow(248, 248, 210);
-        p.setBrush(QPalette::Base, generateGradient(lightYellow));
+        QColor lightGreen(210, 248, 210);
+        p.setBrush(QPalette::Base, generateGradient(lightGreen));
     } else {
         p.setBrush(QPalette::Base, m_defaultBaseColor);
     }
@@ -346,11 +346,16 @@ void UrlLineEdit::paintEvent(QPaintEvent *event)
     QRect backgroundRect = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
     if (m_webView && !hasFocus()) {
         int progress = m_webView->progress();
-        QColor loadingColor = QColor(116, 192, 250);
-        painter.setBrush(generateGradient(loadingColor));
-        painter.setPen(Qt::transparent);
-        int mid = backgroundRect.width() / 100.0f * progress;
-        QRect progressRect(backgroundRect.x(), backgroundRect.y(), mid, backgroundRect.height());
-        painter.drawRect(progressRect);
+
+        if (progress < 100)
+        {
+            QColor loadingColor = QColor(116, 192, 250);
+            painter.setBrush(generateGradient(loadingColor));
+            painter.setPen(Qt::transparent);
+            int mid = backgroundRect.width() / 100.0f * progress;
+
+            QRect progressRect(backgroundRect.x(), backgroundRect.y(), mid, backgroundRect.height());
+            painter.drawRect(progressRect);
+        }
     }
 }
