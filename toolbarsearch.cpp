@@ -168,5 +168,5 @@ void ToolbarSearch::triggeredMenuAction(QAction *action)
 void ToolbarSearch::clear()
 {
     m_stringListModel->setStringList(QStringList());
-    m_autosaver->changeOccurred();;
+    m_autosaver->changeOccurred();
 }

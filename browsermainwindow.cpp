@@ -82,6 +82,9 @@
 #include <QWebEngineSettings>
 
 #include <QtCore/QDebug>
+#include <QSplitter>
+
+#define USE_SPLITTER_BETWEEN_LINE
 
 template<typename Arg, typename R, typename C>
 struct InvokeWrapper {
@@ -509,7 +512,7 @@ void BrowserMainWindow::setupToolBar()
     connect(m_navigationBar->toggleViewAction(), SIGNAL(toggled(bool)),
             this, SLOT(updateToolbarActionText(bool)));
 
-    m_historyBack->setIcon(style()->standardIcon(QStyle::SP_ArrowBack, 0, this));
+    m_historyBack->setIcon(style()->standardIcon(QStyle::SP_ArrowBack, 0, this)); //SP_ArrowBack
     m_historyBackMenu = new QMenu(this);
     m_historyBack->setMenu(m_historyBackMenu);
     connect(m_historyBackMenu, SIGNAL(aboutToShow()),
@@ -533,14 +536,50 @@ void BrowserMainWindow::setupToolBar()
 
     m_navigationBar->addAction(m_stopReload);
 
+#ifndef USE_SPLITTER_BETWEEN_LINE
     m_navigationBar->addWidget(m_tabWidget->lineEditStack());
+#endif
+
+    // Circle loading progress
+    m_chaseWidget = new ChaseWidget(this);
+#ifndef USE_SPLITTER_BETWEEN_LINE
+    m_navigationBar->addWidget(m_chaseWidget);
+#endif
 
     m_toolbarSearch = new ToolbarSearch(m_navigationBar);
+#ifndef USE_SPLITTER_BETWEEN_LINE
     m_navigationBar->addWidget(m_toolbarSearch);
+#endif
     connect(m_toolbarSearch, SIGNAL(search(QUrl)), SLOT(loadUrl(QUrl)));
 
-    m_chaseWidget = new ChaseWidget(this);
-    m_navigationBar->addWidget(m_chaseWidget);
+    //-----------
+
+#ifdef USE_SPLITTER_BETWEEN_LINE
+    QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
+    leftSideLayout->setContentsMargins(0,0,0,0);
+
+    QWidget *leftSideWidget = new QWidget(this);
+    leftSideLayout->addWidget(m_tabWidget->lineEditStack());
+    leftSideLayout->addWidget(m_chaseWidget);
+    leftSideWidget->setLayout(leftSideLayout);
+
+    //
+
+    QHBoxLayout *rightSideLayout = new QHBoxLayout(this);
+    rightSideLayout->setContentsMargins(0,0,0,0);
+
+    QWidget *rightSideWidget = new QWidget(this);
+    rightSideLayout->addWidget(m_toolbarSearch);
+    rightSideWidget->setLayout(rightSideLayout);
+
+    //
+
+    QSplitter *splitter = new QSplitter(this);
+    splitter->addWidget(leftSideWidget);
+    splitter->addWidget(rightSideWidget);
+
+    m_navigationBar->addWidget(splitter);
+#endif
 }
 
 void BrowserMainWindow::slotShowBookmarksDialog()
