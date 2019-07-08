@@ -42,7 +42,8 @@ HEADERS += \
     toolbarsearch.h \
     urllineedit.h \
     webview.h \
-    xbel.h
+    xbel.h \
+    searchengine.h
 
 SOURCES += \
     autosaver.cpp \
@@ -67,7 +68,8 @@ SOURCES += \
     urllineedit.cpp \
     webview.cpp \
     xbel.cpp \
-    main.cpp
+    main.cpp \
+    searchengine.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 

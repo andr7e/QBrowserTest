@@ -243,7 +243,7 @@ private slots:
 private:
     int calcTabWidth() const;
     int calcTabHeight() const;
-    void moveButton();
+    void moveNewTabButton();
 
 private:
     void setupPage(QWebEnginePage* page);

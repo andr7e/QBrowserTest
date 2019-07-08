@@ -62,6 +62,8 @@
 
 #include <QWebEngineSettings>
 
+#include "searchengine.h"
+
 /*
     ToolbarSearch is a very basic search widget that also contains a small history.
     Searches are turned into urls that use Google to perform search
@@ -124,13 +126,8 @@ void ToolbarSearch::searchNow()
         m_autosaver->changeOccurred();
     }
 
-    QUrl url(QLatin1String("http://www.google.com/search"));
-    QUrlQuery urlQuery;
-    urlQuery.addQueryItem(QLatin1String("q"), searchText);
-    urlQuery.addQueryItem(QLatin1String("ie"), QLatin1String("UTF-8"));
-    urlQuery.addQueryItem(QLatin1String("oe"), QLatin1String("UTF-8"));
-    urlQuery.addQueryItem(QLatin1String("client"), QLatin1String("qtdemobrowser"));
-    url.setQuery(urlQuery);
+    QUrl url = SearchEngine::getUrl(searchText);
+
     emit search(url);
 }
 

@@ -57,6 +57,7 @@
 #include "ui_proxy.h"
 #include "tabwidget.h"
 #include "webview.h"
+#include "searchengine.h"
 
 #include <QtGui/QClipboard>
 #include <QtNetwork/QAuthenticator>
@@ -363,8 +364,8 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose, true);
 
-        menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewTab));
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewBackgroundTab));
+        menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewTab));
 
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInThisWindow));
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewWindow));
@@ -376,8 +377,22 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         menu = page()->createStandardContextMenu();
     }
 
-    if (page()->contextMenuData().selectedText().isEmpty())
+    QString selectedText = page()->contextMenuData().selectedText();
+
+    if ( ! selectedText.isEmpty())
+    {
+        QString str = selectedText.left(30);
+
+        m_searchText = str;
+
+        QAction *searchSelectedAction_ = new QAction(tr("Searh in") + " \"" + str + "\"", this);
+        connect(searchSelectedAction_, SIGNAL(triggered(bool)), this, SLOT(searchSelectedText()));
+        menu->addAction(searchSelectedAction_);
+    }
+    else
+    {
         menu->addAction(page()->action(QWebEnginePage::SavePage));
+    }
 
     menu->popup(event->globalPos());
 }
@@ -447,6 +462,15 @@ void WebView::onIconChanged(const QIcon &icon)
         emit iconChanged(BrowserApplication::instance()->defaultIcon());
     else
         emit iconChanged(icon);
+}
+
+void WebView::searchSelectedText()
+{
+    //qDebug() << "searchSelectedText";
+
+    QUrl url = SearchEngine::getUrl(m_searchText);
+
+    webPage()->mainWindow()->tabWidget()->newTab()->loadUrl(url);
 }
 
 void WebView::mousePressEvent(QMouseEvent *event)

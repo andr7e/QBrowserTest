@@ -118,11 +118,15 @@ private slots:
     void onFeaturePermissionRequested(const QUrl &securityOrigin, QWebEnginePage::Feature);
     void onIconChanged(const QIcon &icon);
 
+    void searchSelectedText();
+
 private:
     QString m_statusBarText;
     QUrl m_initialUrl;
     int m_progress;
     WebPage *m_page;
+
+    QString m_searchText;
 };
 
 #endif
