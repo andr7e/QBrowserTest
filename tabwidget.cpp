@@ -277,6 +277,14 @@ TabWidget::TabWidget(QWidget *parent)
     setTabBar(m_tabBar);
     setDocumentMode(true);
 
+    // newTabButton
+
+    newTabButton_ = new QToolButton(this);
+    newTabButton_->setText("+");
+    connect(newTabButton_, SIGNAL(clicked()), this, SLOT(newTab()));
+
+    setCornerWidget(newTabButton_);
+
     // Actions
     m_newTabAction = new QAction(QIcon(QLatin1String(":addtab.png")), tr("New &Tab"), this);
     m_newTabAction->setShortcuts(QKeySequence::AddTab);
@@ -729,6 +737,13 @@ void TabWidget::setProfile(QWebEngineProfile *profile)
     }
 }
 
+void TabWidget::paintEvent(QPaintEvent *event)
+{
+    QTabWidget::paintEvent(event);
+
+    moveNewTabButton();
+}
+
 void TabWidget::webViewLoadStarted()
 {
     WebView *webView = qobject_cast<WebView*>(sender());
@@ -934,6 +949,52 @@ void TabWidget::downloadRequested(QWebEngineDownloadItem *download)
     BrowserApplication::downloadManager()->download(download);
     download->accept();
 }
+
+int TabWidget::calcTabWidth() const
+{
+    int width = 0;
+    for (int i = 0; i < count(); i++)
+    {
+        width += tabBar()->tabRect(i).width();
+    }
+
+    return width;
+}
+
+int TabWidget::calcTabHeight() const
+{
+    int height = 0;
+    for (int i = 0; i < count(); i++)
+    {
+        height = tabBar()->tabRect(i).height();
+        break;
+    }
+
+    return height;
+}
+
+void TabWidget::moveNewTabButton()
+{
+    int tabWwidth = calcTabWidth();
+    int tabHeight = calcTabHeight();
+
+    int offset_y = (tabHeight - newTabButton_->height()) / 2;
+
+    if (tabWwidth > width())
+    {
+        // Many tabs with scroll
+
+        tabWwidth = tabBar()->width();
+    }
+    else
+    {
+        tabWwidth += offset_y;
+    }
+
+    newTabButton_->move(tabWwidth, offset_y);
+}
+
+//
 
 WebActionMapper::WebActionMapper(QAction *root, QWebEnginePage::WebAction webAction, QObject *parent)
     : QObject(parent)

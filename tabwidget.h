@@ -54,6 +54,7 @@
 #include <QtWebEngineWidgets/QWebEngineFullScreenRequest>
 #include <QtWidgets/QTabBar>
 #include <QtWidgets/QShortcut>
+#include <QtWidgets/QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QWebEngineDownloadItem;
@@ -203,6 +204,8 @@ public:
 
     void setProfile(QWebEngineProfile *profile);
 
+    void paintEvent(QPaintEvent *event);
+
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
@@ -238,6 +241,11 @@ private slots:
     void webPageMutedOrAudibleChanged();
 
 private:
+    int calcTabWidth() const;
+    int calcTabHeight() const;
+    void moveButton();
+
+private:
     void setupPage(QWebEnginePage* page);
 
     QAction *m_recentlyClosedTabsAction;
@@ -258,6 +266,8 @@ private:
     QWebEngineView *m_fullScreenView;
     FullScreenNotification *m_fullScreenNotification;
     QRect m_oldWindowGeometry;
+
+    QToolButton *newTabButton_;
 };
 
 #endif // TABWIDGET_H

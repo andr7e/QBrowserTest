@@ -525,7 +525,6 @@ void BrowserMainWindow::setupToolBar()
     m_reloadIcon = QIcon(QStringLiteral(":process-refresh.png"));
     m_stopIcon   = QIcon(QStringLiteral(":process-stop.png"));
 #else
-
     m_historyBack->setIcon(style()->standardIcon(QStyle::SP_ArrowBack, 0, this));
     m_historyForward->setIcon(style()->standardIcon(QStyle::SP_ArrowForward, 0, this));
 
@@ -826,6 +825,7 @@ void BrowserMainWindow::printRequested(QWebEnginePage *page)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     page->print(m_currentPrinter, invoke(this, &BrowserMainWindow::slotHandlePagePrinted));
 #else
+    Q_UNUSED(page)
     qDebug() << "print not implemented yet.";
 #endif
 }
