@@ -405,7 +405,12 @@ void BrowserMainWindow::setupMenu()
     viewMenu->addSeparator();
     QAction *m_pageSource = viewMenu->addAction(tr("Page S&ource"));
     m_pageSource->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_U));
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     m_tabWidget->addWebAction(m_pageSource, QWebEnginePage::ViewSource);
+#else
+    //m_tabWidget->addWebAction(m_pageSource, QWebEnginePage::OpenLinkInNewBackgroundTab);
+#endif
 
     QAction *a = viewMenu->addAction(tr("&Full Screen"), this, SLOT(slotViewFullScreen(bool)),  Qt::Key_F11);
     a->setCheckable(true);
@@ -512,7 +517,7 @@ void BrowserMainWindow::setupToolBar()
     connect(m_navigationBar->toggleViewAction(), SIGNAL(toggled(bool)),
             this, SLOT(updateToolbarActionText(bool)));
 
-    m_historyBack->setIcon(style()->standardIcon(QStyle::SP_ArrowBack, 0, this)); //SP_ArrowBack
+    m_historyBack->setIcon(style()->standardIcon(QStyle::SP_ArrowBack, 0, this));
     m_historyBackMenu = new QMenu(this);
     m_historyBack->setMenu(m_historyBackMenu);
     connect(m_historyBackMenu, SIGNAL(aboutToShow()),
@@ -802,7 +807,12 @@ void BrowserMainWindow::printRequested(QWebEnginePage *page)
         slotHandlePagePrinted(false);
         return;
     }
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     page->print(m_currentPrinter, invoke(this, &BrowserMainWindow::slotHandlePagePrinted));
+#else
+    qDebug() << "print not implemented yet.";
+#endif
 }
 
 void BrowserMainWindow::slotPrivateBrowsing()
