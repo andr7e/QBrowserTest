@@ -62,6 +62,7 @@
 #include "toolbarsearch.h"
 #include "ui_passworddialog.h"
 #include "webview.h"
+#include "searchengine.h"
 
 #include <QtCore/QSettings>
 
@@ -979,6 +980,17 @@ void BrowserMainWindow::slotSwapFocus()
 void BrowserMainWindow::loadPage(const QString &page)
 {
     QUrl url = QUrl::fromUserInput(page);
+
+    //qDebug() << url.toString();
+
+    //qDebug() << url.scheme(); // http, ftp
+    //qDebug() << url.host();   // site.zone
+    //qDebug() << url.port();
+    //qDebug() << url.isValid();
+
+    if ( ! url.isValid())
+        url = SearchEngine::getUrl(page);
+
     loadUrl(url);
 }
 
