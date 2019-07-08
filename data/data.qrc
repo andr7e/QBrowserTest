@@ -1,11 +1,15 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>addtab.png</file>
-    <file>closetab.png</file>
-    <file>history.png</file>
-    <file>demobrowser.svg</file>
-    <file>defaultbookmarks.xbel</file>
-    <file>loading.gif</file>
-    <file>defaulticon.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>addtab.png</file>
+        <file>closetab.png</file>
+        <file>history.png</file>
+        <file>demobrowser.svg</file>
+        <file>defaultbookmarks.xbel</file>
+        <file>loading.gif</file>
+        <file>defaulticon.png</file>
+        <file>go-next.png</file>
+        <file>go-previous.png</file>
+        <file>process-refresh.png</file>
+        <file>process-stop.png</file>
+    </qresource>
 </RCC>

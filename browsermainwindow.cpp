@@ -85,6 +85,7 @@
 #include <QSplitter>
 
 #define USE_SPLITTER_BETWEEN_LINE
+#define USE_CUSTOM_ICONS
 
 template<typename Arg, typename R, typename C>
 struct InvokeWrapper {
@@ -517,7 +518,21 @@ void BrowserMainWindow::setupToolBar()
     connect(m_navigationBar->toggleViewAction(), SIGNAL(toggled(bool)),
             this, SLOT(updateToolbarActionText(bool)));
 
+#ifdef USE_CUSTOM_ICONS
+    m_historyBack->setIcon(QIcon(QStringLiteral(":go-previous.png")));
+    m_historyForward->setIcon(QIcon(QStringLiteral(":go-next.png")));
+
+    m_reloadIcon = QIcon(QStringLiteral(":process-refresh.png"));
+    m_stopIcon   = QIcon(QStringLiteral(":process-stop.png"));
+#else
+
     m_historyBack->setIcon(style()->standardIcon(QStyle::SP_ArrowBack, 0, this));
+    m_historyForward->setIcon(style()->standardIcon(QStyle::SP_ArrowForward, 0, this));
+
+    m_reloadIcon = style()->standardIcon(QStyle::SP_BrowserReload);
+    m_stopIcon = style()->standardIcon(QStyle::SP_BrowserStop);
+#endif
+
     m_historyBackMenu = new QMenu(this);
     m_historyBack->setMenu(m_historyBackMenu);
     connect(m_historyBackMenu, SIGNAL(aboutToShow()),
@@ -526,7 +541,6 @@ void BrowserMainWindow::setupToolBar()
             this, SLOT(slotOpenActionUrl(QAction*)));
     m_navigationBar->addAction(m_historyBack);
 
-    m_historyForward->setIcon(style()->standardIcon(QStyle::SP_ArrowForward, 0, this));
     m_historyForwardMenu = new QMenu(this);
     connect(m_historyForwardMenu, SIGNAL(aboutToShow()),
             this, SLOT(slotAboutToShowForwardMenu()));
@@ -536,10 +550,11 @@ void BrowserMainWindow::setupToolBar()
     m_navigationBar->addAction(m_historyForward);
 
     m_stopReload = new QAction(this);
-    m_reloadIcon = style()->standardIcon(QStyle::SP_BrowserReload);
     m_stopReload->setIcon(m_reloadIcon);
 
     m_navigationBar->addAction(m_stopReload);
+
+    //
 
 #ifndef USE_SPLITTER_BETWEEN_LINE
     m_navigationBar->addWidget(m_tabWidget->lineEditStack());
@@ -982,8 +997,8 @@ void BrowserMainWindow::slotLoadProgress(int progress)
     if (progress < 100 && progress > 0) {
         m_chaseWidget->setAnimated(true);
         disconnect(m_stopReload, SIGNAL(triggered()), m_reload, SLOT(trigger()));
-        if (m_stopIcon.isNull())
-            m_stopIcon = style()->standardIcon(QStyle::SP_BrowserStop);
+        //if (m_stopIcon.isNull())
+        //    m_stopIcon = style()->standardIcon(QStyle::SP_BrowserStop);
         m_stopReload->setIcon(m_stopIcon);
         connect(m_stopReload, SIGNAL(triggered()), m_stop, SLOT(trigger()));
         m_stopReload->setToolTip(tr("Stop loading the current page"));
