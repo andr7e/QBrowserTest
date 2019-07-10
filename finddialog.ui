@@ -30,12 +30,20 @@
        <property name="text">
         <string>&gt;</string>
        </property>
+       <property name="icon">
+        <iconset resource="data/data.qrc">
+         <normaloff>:/go-next.png</normaloff>:/go-next.png</iconset>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QToolButton" name="prevToolButton">
        <property name="text">
         <string>&lt;</string>
+       </property>
+       <property name="icon">
+        <iconset resource="data/data.qrc">
+         <normaloff>:/go-previous.png</normaloff>:/go-previous.png</iconset>
        </property>
       </widget>
      </item>
@@ -68,7 +76,14 @@
      <item>
       <widget class="QToolButton" name="closeButton">
        <property name="text">
-        <string>x</string>
+        <string>X</string>
+       </property>
+       <property name="icon">
+        <iconset resource="data/data.qrc">
+         <normaloff>:/closetab.png</normaloff>:/closetab.png</iconset>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonIconOnly</enum>
        </property>
       </widget>
      </item>
@@ -76,6 +91,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="data/data.qrc"/>
+ </resources>
  <connections/>
 </ui>
