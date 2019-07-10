@@ -111,6 +111,8 @@ private slots:
     void webViewUrlChanged(const QUrl &url);
     void webViewIconChanged(const QIcon &icon);
 
+    void recolorText(const QString &text);
+
 private:
     QLinearGradient generateGradient(const QColor &color) const;
     WebView *m_webView;

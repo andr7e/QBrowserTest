@@ -67,8 +67,9 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QStyleOptionFrame>
-
+#include <QTextLayout>
 #include <QtCore/QDebug>
+
 
 #define NO_CUSTOM_CLOSE_BUTTON
 
@@ -283,6 +284,8 @@ UrlLineEdit::UrlLineEdit(QWidget *parent)
     m_iconLabel->resize(16, 16);
     setLeftWidget(m_iconLabel);
     m_defaultBaseColor = palette().color(QPalette::Base);
+
+    connect(lineEdit(), SIGNAL(textChanged(QString)), SLOT(recolorText(QString)));
 }
 
 void UrlLineEdit::setWebView(WebView *webView)
@@ -328,16 +331,21 @@ void UrlLineEdit::focusOutEvent(QFocusEvent *event)
     ExLineEdit::focusOutEvent(event);
 }
 
+/*
 void UrlLineEdit::paintEvent(QPaintEvent *event)
 {
+    bool https = m_webView && m_webView->url().scheme() == QLatin1String("https");
+
     QPalette p = palette();
-    if (m_webView && m_webView->url().scheme() == QLatin1String("https")) {
+    if (https) {
         QColor lightGreen(210, 248, 210);
         p.setBrush(QPalette::Base, generateGradient(lightGreen));
     } else {
         p.setBrush(QPalette::Base, m_defaultBaseColor);
     }
+
     setPalette(p);
+
     ExLineEdit::paintEvent(event);
 
     QPainter painter(this);
@@ -358,4 +366,107 @@ void UrlLineEdit::paintEvent(QPaintEvent *event)
             painter.drawRect(progressRect);
         }
     }
+}
+*/
+
+void UrlLineEdit::paintEvent(QPaintEvent *event)
+{
+    //bool https = m_webView && m_webView->url().scheme() == QLatin1String("https");
+
+    QPalette p = palette();
+    p.setBrush(QPalette::Base, m_defaultBaseColor);
+    setPalette(p);
+
+    ExLineEdit::paintEvent(event);
+
+    QPainter painter(this);
+    QStyleOptionFrame panel;
+    initStyleOption(&panel);
+    QRect backgroundRect = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
+    if (m_webView && !hasFocus()) {
+        int progress = m_webView->progress();
+
+        if (progress < 100)
+        {
+            QColor loadingColor = QColor(116, 192, 250);
+            painter.setBrush(generateGradient(loadingColor));
+            painter.setPen(Qt::transparent);
+            int mid = backgroundRect.width() / 100.0f * progress;
+
+            QRect progressRect(backgroundRect.x(), backgroundRect.y(), mid, backgroundRect.height());
+            painter.drawRect(progressRect);
+        }
+    }
+
+    /*
+    if (m_webView)
+    {
+        if (https)
+        {
+            QColor lightGreen(210, 248, 210);
+            painter.setBrush(lightGreen);
+            painter.setPen(Qt::transparent);
+
+            QRect progressRect(backgroundRect.x(), backgroundRect.y(), m_iconLabel->width(), backgroundRect.height());
+            painter.drawRect(progressRect);
+        }
+    }
+    */
+}
+
+// Recolor part of text
+
+void setLineEditTextFormat(QLineEdit* lineEdit, const QList<QTextLayout::FormatRange>& formats)
+{
+    if ( ! lineEdit)  return;
+
+    QList<QInputMethodEvent::Attribute> attributes;
+    foreach(const QTextLayout::FormatRange& fmt, formats)
+    {
+        QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
+        int start      = fmt.start - lineEdit->cursorPosition();
+        int length     = fmt.length;
+        QVariant value = fmt.format;
+        attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
+    }
+
+    QInputMethodEvent event(QString(), attributes);
+    QCoreApplication::sendEvent(lineEdit, &event);
+}
+
+void clearLineEditTextFormat(QLineEdit* lineEdit)
+{
+    setLineEditTextFormat(lineEdit, QList<QTextLayout::FormatRange>());
+}
+
+
+void UrlLineEdit::recolorText(const QString &text)
+{
+    QList<QTextLayout::FormatRange> formats;
+
+    bool https = m_webView && m_webView->url().scheme() == QLatin1String("https");
+
+    if (https)
+    {
+        int index = text.indexOf("https");
+
+        if (index >= 0)
+        {
+            QTextCharFormat f;
+
+            QColor lightGreen(51, 204, 51);
+
+            //f.setFontWeight(QFont::Bold);
+            f.setForeground(lightGreen);
+
+            QTextLayout::FormatRange httpsFormat;
+            httpsFormat.start  = index;
+            httpsFormat.length = 5;
+            httpsFormat.format = f;
+
+            formats.append(httpsFormat);
+        }
+    }
+
+    setLineEditTextFormat(lineEdit(), formats);
 }
