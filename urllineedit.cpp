@@ -284,8 +284,6 @@ UrlLineEdit::UrlLineEdit(QWidget *parent)
     m_iconLabel->resize(16, 16);
     setLeftWidget(m_iconLabel);
     m_defaultBaseColor = palette().color(QPalette::Base);
-
-    connect(lineEdit(), SIGNAL(textChanged(QString)), SLOT(recolorText(QString)));
 }
 
 void UrlLineEdit::setWebView(WebView *webView)
@@ -305,6 +303,8 @@ void UrlLineEdit::webViewUrlChanged(const QUrl &url)
 {
     m_lineEdit->setText(QString::fromUtf8(url.toEncoded()));
     m_lineEdit->setCursorPosition(0);
+
+    recolorText();
 }
 
 void UrlLineEdit::webViewIconChanged(const QIcon &icon)
@@ -440,14 +440,19 @@ void clearLineEditTextFormat(QLineEdit* lineEdit)
 }
 
 
-void UrlLineEdit::recolorText(const QString &text)
+void UrlLineEdit::recolorText()
 {
+    QString text = m_lineEdit->text();
+
+    //qDebug() << "recolorText";
     QList<QTextLayout::FormatRange> formats;
 
     bool https = m_webView && m_webView->url().scheme() == QLatin1String("https");
 
     if (https)
     {
+        //qDebug() << "https";
+
         int index = text.indexOf("https");
 
         if (index >= 0)
