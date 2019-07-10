@@ -66,6 +66,7 @@ class ChaseWidget;
 class TabWidget;
 class ToolbarSearch;
 class WebView;
+class FindDialog;
 
 /*!
     The MainWindow of the Browser Application.
@@ -113,7 +114,9 @@ private slots:
     void slotFilePrintToPDF();
     void slotPrivateBrowsing();
     void slotFileSaveAs();
-    void slotEditFind();
+    void slotStartFind();
+    void slotEndFind();
+    void slotEditFind(const QString &search);
     void slotEditFindNext();
     void slotEditFindPrevious();
     void slotShowBookmarksDialog();
@@ -184,6 +187,8 @@ private:
     QString m_lastSearch;
     QString m_printerOutputFileName;
     friend class BrowserApplication;
+
+    FindDialog *m_findDialog;
 };
 
 #endif // BROWSERMAINWINDOW_H

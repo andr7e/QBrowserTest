@@ -18,7 +18,8 @@ FORMS += \
     printtopdfdialog.ui \
     proxy.ui \
     savepagedialog.ui \
-    settings.ui
+    settings.ui \
+    finddialog.ui
 
 HEADERS += \
     autosaver.h \
@@ -43,7 +44,8 @@ HEADERS += \
     urllineedit.h \
     webview.h \
     xbel.h \
-    searchengine.h
+    searchengine.h \
+    finddialog.h
 
 SOURCES += \
     autosaver.cpp \
@@ -69,7 +71,8 @@ SOURCES += \
     webview.cpp \
     xbel.cpp \
     main.cpp \
-    searchengine.cpp
+    searchengine.cpp \
+    finddialog.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 

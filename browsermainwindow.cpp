@@ -63,6 +63,7 @@
 #include "ui_passworddialog.h"
 #include "webview.h"
 #include "searchengine.h"
+#include "finddialog.h"
 
 #include <QtCore/QSettings>
 
@@ -115,6 +116,7 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     , m_stop(0)
     , m_reload(0)
     , m_currentPrinter(nullptr)
+    , m_findDialog(new FindDialog(this))
 {
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setAttribute(Qt::WA_DeleteOnClose, true);
@@ -130,6 +132,12 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     connect(m_bookmarksToolbar->toggleViewAction(), SIGNAL(toggled(bool)),
             this, SLOT(updateBookmarksToolbarActionText(bool)));
 
+
+    connect(m_findDialog, SIGNAL(textChanged(QString)), SLOT(slotEditFind(QString)));
+    connect(m_findDialog, SIGNAL(findClosed()),         SLOT(slotEndFind()));
+    connect(m_findDialog, SIGNAL(findNext()),           SLOT(slotEditFindNext()));
+    connect(m_findDialog, SIGNAL(findPrev()),           SLOT(slotEditFindPrevious()));
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
@@ -140,9 +148,14 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     addToolBarBreak();
     addToolBar(m_bookmarksToolbar);
 #endif
+
     layout->addWidget(m_tabWidget);
+    layout->addWidget(m_findDialog);
+
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
+
+    m_findDialog->setVisible(false);
 
     connect(m_tabWidget, SIGNAL(loadPage(QString)),
         this, SLOT(loadPage(QString)));
@@ -156,6 +169,8 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
             this, SLOT(slotLoadProgress(int)));
     connect(m_tabWidget, SIGNAL(tabsChanged()),
             m_autoSaver, SLOT(changeOccurred()));
+    connect(m_tabWidget, SIGNAL(tabsChanged()),
+            this, SLOT(slotEndFind()));
     connect(m_tabWidget, SIGNAL(geometryChangeRequested(QRect)),
             this, SLOT(geometryChangeRequested(QRect)));
 #if defined(QWEBENGINEPAGE_PRINTREQUESTED)
@@ -353,7 +368,7 @@ void BrowserMainWindow::setupMenu()
 
     QAction *m_find = editMenu->addAction(tr("&Find"));
     m_find->setShortcuts(QKeySequence::Find);
-    connect(m_find, SIGNAL(triggered()), this, SLOT(slotEditFind()));
+    connect(m_find, SIGNAL(triggered()), this, SLOT(slotStartFind()));
 
     QAction *m_findNext = editMenu->addAction(tr("&Find Next"));
     m_findNext->setShortcuts(QKeySequence::FindNext);
@@ -875,14 +890,40 @@ void BrowserMainWindow::closeEvent(QCloseEvent *event)
     deleteLater();
 }
 
-void BrowserMainWindow::slotEditFind()
+void BrowserMainWindow::slotStartFind()
 {
     if (!currentTab())
         return;
+
+    m_findDialog->setVisible(true);
+    m_findDialog->setFindFocus();
+    m_findDialog->setText("");
+    m_findDialog->setText(m_lastSearch);
+}
+
+void BrowserMainWindow::slotEndFind()
+{
+    if (!currentTab())
+        return;
+
+    m_findDialog->setVisible(false);
+
+    currentTab()->findText("", 0);
+}
+
+void BrowserMainWindow::slotEditFind(const QString &search)
+{
+    if (!currentTab())
+        return;
+
+    /*
     bool ok;
     QString search = QInputDialog::getText(this, tr("Find"),
                                           tr("Text:"), QLineEdit::Normal,
                                           m_lastSearch, &ok);
+                                          */
+    bool ok = true;
+
     if (ok && !search.isEmpty()) {
         m_lastSearch = search;
         currentTab()->findText(m_lastSearch, 0, invoke(this, &BrowserMainWindow::handleFindTextResult));
