@@ -439,7 +439,18 @@ void WebView::loadFinished(bool success)
 void WebView::loadUrl(const QUrl &url)
 {
     m_initialUrl = url;
-    load(url);
+
+    QString site = url.toString();
+
+    if (site.contains("about"))
+    {
+        QString html = "<html>Hello, this is Homepage!</br>Hello, this is Homepage!</html>";
+        setHtml(html, url);
+    }
+    else
+    {
+        load(url);
+    }
 }
 
 QString WebView::lastStatusBarText() const

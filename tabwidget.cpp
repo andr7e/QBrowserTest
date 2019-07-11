@@ -862,17 +862,7 @@ void TabWidget::loadUrlInCurrentTab(const QUrl &url)
     WebView *webView = currentWebView();
     if (webView)
     {
-        QString site = url.toString();
-
-        if (site.contains("about"))
-        {
-            QString html = "<html>Hello, this is Homepage!</br>Hello, this is Homepage!</html>";
-            webView->setHtml(html);
-        }
-        else
-        {
-            webView->loadUrl(url);
-        }
+        webView->loadUrl(url);
 
         webView->setFocus();
     }
