@@ -179,6 +179,8 @@ private:
     QAction *m_restoreLastSession;
     QAction *m_addBookmark;
 
+    QAction *m_addBookmarkToolBar;
+
     QPrinter *m_currentPrinter;
 
     QIcon m_reloadIcon;

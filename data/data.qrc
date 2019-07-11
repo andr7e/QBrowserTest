@@ -11,5 +11,6 @@
         <file>go-previous.png</file>
         <file>process-refresh.png</file>
         <file>process-stop.png</file>
+        <file>addbookmark.png</file>
     </qresource>
 </RCC>

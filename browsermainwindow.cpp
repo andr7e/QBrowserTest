@@ -195,7 +195,6 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
 
     int size = m_tabWidget->lineEditStack()->sizeHint().height();
     m_navigationBar->setIconSize(QSize(size, size));
-
 }
 
 BrowserMainWindow::~BrowserMainWindow()
@@ -571,6 +570,12 @@ void BrowserMainWindow::setupToolBar()
 
     //
 
+    m_addBookmarkToolBar = new QAction(QIcon(QLatin1String(":addbookmark.png")), tr("Add Bookmark..."), this);
+    connect(m_addBookmarkToolBar, SIGNAL(triggered()), this, SLOT(slotAddBookmark()));
+    m_addBookmarkToolBar->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+
+    //
+
 #ifndef USE_SPLITTER_BETWEEN_LINE
     m_navigationBar->addWidget(m_tabWidget->lineEditStack());
 #endif
@@ -582,7 +587,9 @@ void BrowserMainWindow::setupToolBar()
 #endif
 
     m_toolbarSearch = new ToolbarSearch(m_navigationBar);
+
 #ifndef USE_SPLITTER_BETWEEN_LINE
+    m_navigationBar->addAction(m_addBookmarkToolBar);
     m_navigationBar->addWidget(m_toolbarSearch);
 #endif
     connect(m_toolbarSearch, SIGNAL(search(QUrl)), SLOT(loadUrl(QUrl)));
@@ -590,12 +597,18 @@ void BrowserMainWindow::setupToolBar()
     //-----------
 
 #ifdef USE_SPLITTER_BETWEEN_LINE
+
+    QToolBar *toolBar = new QToolBar(this);
+    toolBar->addAction(m_addBookmarkToolBar);
+
     QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
     leftSideLayout->setContentsMargins(0,0,0,0);
 
     QWidget *leftSideWidget = new QWidget(this);
     leftSideLayout->addWidget(m_tabWidget->lineEditStack());
     leftSideLayout->addWidget(m_chaseWidget);
+    leftSideLayout->addWidget(toolBar);
+
     leftSideWidget->setLayout(leftSideLayout);
 
     //

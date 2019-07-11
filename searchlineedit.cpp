@@ -182,8 +182,8 @@ SearchLineEdit::SearchLineEdit(QWidget *parent) : ExLineEdit(parent),
     setLeftWidget(m_searchButton);
     m_inactiveText = tr("Search");
 
-    QSizePolicy policy = sizePolicy();
-    setSizePolicy(QSizePolicy::Preferred, policy.verticalPolicy());
+    //QSizePolicy policy = sizePolicy();
+    //setSizePolicy(QSizePolicy::Preferred, policy.verticalPolicy());
 }
 
 void SearchLineEdit::paintEvent(QPaintEvent *event)
