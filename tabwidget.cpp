@@ -281,6 +281,7 @@ TabWidget::TabWidget(QWidget *parent)
 
     newTabButton_ = new QToolButton(this);
     newTabButton_->setText("+");
+    //newTabButton_->setIcon(QIcon(":addtab.png"));
     connect(newTabButton_, SIGNAL(clicked()), this, SLOT(newTab()));
 
     setCornerWidget(newTabButton_);
@@ -859,8 +860,20 @@ void TabWidget::mouseReleaseEvent(QMouseEvent *event)
 void TabWidget::loadUrlInCurrentTab(const QUrl &url)
 {
     WebView *webView = currentWebView();
-    if (webView) {
-        webView->loadUrl(url);
+    if (webView)
+    {
+        QString site = url.toString();
+
+        if (site.contains("about"))
+        {
+            QString html = "<html>Hello, this is Homepage!</br>Hello, this is Homepage!</html>";
+            webView->setHtml(html);
+        }
+        else
+        {
+            webView->loadUrl(url);
+        }
+
         webView->setFocus();
     }
 }
