@@ -606,6 +606,9 @@ WebView *TabWidget::newTab(bool makeCurrent)
     // webview
     WebView *webView = new WebView;
     webView->setPage(new WebPage(m_profile, webView));
+
+    //webView->setUrl(QUrl("newtab"));
+
     urlLineEdit->setWebView(webView);
     connect(webView, SIGNAL(loadStarted()),
             this, SLOT(webViewLoadStarted()));

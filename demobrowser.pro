@@ -45,7 +45,8 @@ HEADERS += \
     webview.h \
     xbel.h \
     searchengine.h \
-    finddialog.h
+    finddialog.h \
+    htmltemplatemanager.h
 
 SOURCES += \
     autosaver.cpp \
@@ -72,7 +73,8 @@ SOURCES += \
     xbel.cpp \
     main.cpp \
     searchengine.cpp \
-    finddialog.cpp
+    finddialog.cpp \
+    htmltemplatemanager.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 

@@ -58,6 +58,7 @@
 #include "tabwidget.h"
 #include "webview.h"
 #include "searchengine.h"
+#include "htmltemplatemanager.h"
 
 #include <QtGui/QClipboard>
 #include <QtNetwork/QAuthenticator>
@@ -444,8 +445,20 @@ void WebView::loadUrl(const QUrl &url)
 
     if (site.contains("about"))
     {
-        QString html = "<html>Hello, this is Homepage!</br>Hello, this is Homepage!</html>";
+        //QString html = "<html>Hello, this is Homepage!</html>";
+        QString html = HtmlTemplateManager::get(QLatin1String("home"));
+
         setHtml(html, url);
+
+        //emit iconChanged(QIcon());
+    }
+    else if (site.contains("newtab"))
+    {
+        QString html = HtmlTemplateManager::get(site);
+
+        setHtml(html, url);
+
+        //emit iconChanged(QIcon());
     }
     else
     {
