@@ -268,6 +268,8 @@ private:
     QRect m_oldWindowGeometry;
 
     QToolButton *newTabButton_;
+
+    const char *newTabTitle;
 };
 
 #endif // TABWIDGET_H

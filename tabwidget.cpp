@@ -58,6 +58,7 @@
 #include "savepagedialog.h"
 #include "urllineedit.h"
 #include "webview.h"
+#include "htmltemplatemanager.h"
 
 #include <QWebEngineDownloadItem>
 #include <QWebEngineProfile>
@@ -262,6 +263,7 @@ TabWidget::TabWidget(QWidget *parent)
     , m_profile(QWebEngineProfile::defaultProfile())
     , m_fullScreenView(0)
     , m_fullScreenNotification(0)
+    , newTabTitle("New Tab") // (Untitled)
 {
     setElideMode(Qt::ElideRight);
 
@@ -328,6 +330,8 @@ TabWidget::TabWidget(QWidget *parent)
             this, SLOT(currentChanged(int)));
 
     m_lineEdits = new QStackedWidget(this);
+
+    HtmlTemplateManager::get("newtab");
 }
 
 TabWidget::~TabWidget()
@@ -597,7 +601,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
         emptyWidget->setAutoFillBackground(true);
         disconnect(this, SIGNAL(currentChanged(int)),
             this, SLOT(currentChanged(int)));
-        addTab(emptyWidget, tr("(Untitled)"));
+        addTab(emptyWidget, tr(newTabTitle));
         connect(this, SIGNAL(currentChanged(int)),
             this, SLOT(currentChanged(int)));
         return 0;
@@ -608,6 +612,17 @@ WebView *TabWidget::newTab(bool makeCurrent)
     webView->setPage(new WebPage(m_profile, webView));
 
     //webView->setUrl(QUrl("newtab"));
+    QString html = HtmlTemplateManager::get("newtab");
+    webView->m_virtTab = true;
+    /*
+    int index = webViewIndex(webView);
+    if (-1 != index) {
+        setTabIcon(index, QIcon());
+    }
+    */
+
+    webView->setContent(html.toLatin1(), "text/html;charset=UTF-8"); //, QUrl());
+    //setHtml 2mb limit encode to url
 
     urlLineEdit->setWebView(webView);
     connect(webView, SIGNAL(loadStarted()),
@@ -624,7 +639,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
             this, SLOT(webViewUrlChanged(QUrl)));
 
 
-    addTab(webView, tr("(Untitled)"));
+    addTab(webView, tr(newTabTitle));
     if (makeCurrent)
         setCurrentWidget(webView);
 
@@ -750,16 +765,28 @@ void TabWidget::paintEvent(QPaintEvent *event)
 
 void TabWidget::webViewLoadStarted()
 {
+    qDebug() << "webViewLoadStarted";
+
     WebView *webView = qobject_cast<WebView*>(sender());
     int index = webViewIndex(webView);
     if (-1 != index) {
-        QIcon icon(QLatin1String(":loading.gif"));
-        setTabIcon(index, icon);
+
+        if (webView->m_virtTab)
+        {
+            //setTabIcon(index, QIcon());
+        }
+        else
+        {
+            QIcon icon(QLatin1String(":loading.gif"));
+            setTabIcon(index, icon);
+        }
     }
 }
 
 void TabWidget::webViewIconChanged(const QIcon &icon)
 {
+    qDebug() << "webViewIconChanged";
+
     WebView *webView = qobject_cast<WebView*>(sender());
     int index = webViewIndex(webView);
     if (-1 != index)
@@ -768,7 +795,12 @@ void TabWidget::webViewIconChanged(const QIcon &icon)
 
 void TabWidget::webViewTitleChanged(const QString &title)
 {
+    qDebug() << "webViewTitleChanged";
+
     WebView *webView = qobject_cast<WebView*>(sender());
+
+    if (webView->m_virtTab) return;
+
     int index = webViewIndex(webView);
     if (-1 != index) {
         setTabText(index, title);

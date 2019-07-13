@@ -313,6 +313,7 @@ WebView::WebView(QWidget* parent)
     : QWebEngineView(parent)
     , m_progress(0)
     , m_page(0)
+    , m_virtTab(false)
 {
     connect(this, SIGNAL(loadProgress(int)),
             this, SLOT(setProgress(int)));
@@ -445,23 +446,16 @@ void WebView::loadUrl(const QUrl &url)
 
     if (site.contains("about"))
     {
-        //QString html = "<html>Hello, this is Homepage!</html>";
+        m_virtTab = true;
+
         QString html = HtmlTemplateManager::get(QLatin1String("home"));
 
         setHtml(html, url);
-
-        //emit iconChanged(QIcon());
-    }
-    else if (site.contains("newtab"))
-    {
-        QString html = HtmlTemplateManager::get(site);
-
-        setHtml(html, url);
-
-        //emit iconChanged(QIcon());
     }
     else
     {
+        m_virtTab = false;
+
         load(url);
     }
 }

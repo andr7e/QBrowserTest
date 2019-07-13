@@ -127,6 +127,9 @@ private:
     WebPage *m_page;
 
     QString m_searchText;
+
+public:
+    bool m_virtTab;
 };
 
 #endif
