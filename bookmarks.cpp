@@ -720,6 +720,7 @@ AddBookmarkDialog::AddBookmarkDialog(const QString &url, const QString &title, Q
     view->setCurrentIndex(idx);
     location->setCurrentIndex(idx.row());
     name->setText(title);
+    urlLineEdit->setText(url);
 }
 
 void AddBookmarkDialog::accept()
