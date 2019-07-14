@@ -130,6 +130,7 @@ private:
 
 public:
     bool m_virtTab;
+    bool m_newTab;
 };
 
 #endif

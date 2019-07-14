@@ -614,6 +614,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
     //webView->setUrl(QUrl("newtab"));
     QString html = HtmlTemplateManager::get("newtab");
     webView->m_virtTab = true;
+    webView->m_newTab  = true;
     /*
     int index = webViewIndex(webView);
     if (-1 != index) {
@@ -799,7 +800,7 @@ void TabWidget::webViewTitleChanged(const QString &title)
 
     WebView *webView = qobject_cast<WebView*>(sender());
 
-    if (webView->m_virtTab) return;
+    if (webView->m_newTab) return;
 
     int index = webViewIndex(webView);
     if (-1 != index) {
@@ -829,7 +830,10 @@ void TabWidget::webPageMutedOrAudibleChanged() {
 
 void TabWidget::webViewUrlChanged(const QUrl &url)
 {
+    qDebug() << "webViewUrlChanged";
+
     WebView *webView = qobject_cast<WebView*>(sender());
+
     int index = webViewIndex(webView);
     if (-1 != index) {
         m_tabBar->setTabData(index, url);

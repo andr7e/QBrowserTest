@@ -301,6 +301,8 @@ void UrlLineEdit::setWebView(WebView *webView)
 
 void UrlLineEdit::webViewUrlChanged(const QUrl &url)
 {
+    if (m_webView->m_newTab) return;
+
     m_lineEdit->setText(QString::fromUtf8(url.toEncoded()));
     m_lineEdit->setCursorPosition(0);
 

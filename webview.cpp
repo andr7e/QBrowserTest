@@ -314,6 +314,7 @@ WebView::WebView(QWidget* parent)
     , m_progress(0)
     , m_page(0)
     , m_virtTab(false)
+    , m_newTab(false)
 {
     connect(this, SIGNAL(loadProgress(int)),
             this, SLOT(setProgress(int)));
@@ -443,6 +444,8 @@ void WebView::loadUrl(const QUrl &url)
     m_initialUrl = url;
 
     QString site = url.toString();
+
+    m_newTab = false;
 
     if (site.contains("about"))
     {
