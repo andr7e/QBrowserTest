@@ -315,6 +315,7 @@ WebView::WebView(QWidget* parent)
     , m_page(0)
     , m_virtTab(false)
     , m_newTab(false)
+    , m_loadingIcon(false)
 {
     connect(this, SIGNAL(loadProgress(int)),
             this, SLOT(setProgress(int)));
@@ -445,15 +446,17 @@ void WebView::loadUrl(const QUrl &url)
 
     QString site = url.toString();
 
-    m_newTab = false;
+    //m_newTab = false;
 
-    if (site.contains("about"))
+    if (site.contains("about.home"))
     {
         m_virtTab = true;
 
         QString html = HtmlTemplateManager::get(QLatin1String("home"));
 
         setHtml(html, url);
+
+        //load(QUrl("file:home.html")); not working
     }
     else
     {

@@ -264,6 +264,7 @@ TabWidget::TabWidget(QWidget *parent)
     , m_fullScreenView(0)
     , m_fullScreenNotification(0)
     , newTabTitle("New Tab") // (Untitled)
+    , m_virtMode(false)
 {
     setElideMode(Qt::ElideRight);
 
@@ -284,7 +285,7 @@ TabWidget::TabWidget(QWidget *parent)
     newTabButton_ = new QToolButton(this);
     newTabButton_->setText("+");
     //newTabButton_->setIcon(QIcon(":addtab.png"));
-    connect(newTabButton_, SIGNAL(clicked()), this, SLOT(newTab()));
+    connect(newTabButton_, SIGNAL(clicked()), this, SLOT(newTabByUser()));
 
     setCornerWidget(newTabButton_);
 
@@ -572,6 +573,20 @@ void TabWidget::setupPage(QWebEnginePage* page)
     }
 }
 
+WebView *TabWidget::newTabByUser(bool makeCurrent)
+{
+    m_virtMode = true;
+
+    // set flag for quick open without reload
+    WebView *wv = newTab(makeCurrent);
+
+    m_virtMode = false;
+
+    // unset flag
+
+    return wv;
+}
+
 WebView *TabWidget::newTab(bool makeCurrent)
 {
     // line edit
@@ -613,8 +628,13 @@ WebView *TabWidget::newTab(bool makeCurrent)
 
     //webView->setUrl(QUrl("newtab"));
     QString html = HtmlTemplateManager::get("newtab");
-    webView->m_virtTab = true;
-    webView->m_newTab  = true;
+
+    if (m_virtMode)
+    {
+        webView->m_virtTab = true;
+        webView->m_newTab  = true;
+    }
+
     /*
     int index = webViewIndex(webView);
     if (-1 != index) {
@@ -628,6 +648,8 @@ WebView *TabWidget::newTab(bool makeCurrent)
     urlLineEdit->setWebView(webView);
     connect(webView, SIGNAL(loadStarted()),
             this, SLOT(webViewLoadStarted()));
+    connect(webView, SIGNAL(loadFinished(bool)),
+            this, SLOT(webViewLoadFinished(bool)));
     connect(webView, SIGNAL(iconChanged(QIcon)),
             this, SLOT(webViewIconChanged(QIcon)));
     connect(webView, SIGNAL(titleChanged(QString)),
@@ -766,21 +788,38 @@ void TabWidget::paintEvent(QPaintEvent *event)
 
 void TabWidget::webViewLoadStarted()
 {
-    qDebug() << "webViewLoadStarted";
+    qDebug() << "webViewLoadStarted" << m_virtMode;
 
     WebView *webView = qobject_cast<WebView*>(sender());
     int index = webViewIndex(webView);
     if (-1 != index) {
 
-        if (webView->m_virtTab)
+        if (webView->m_newTab)
         {
             //setTabIcon(index, QIcon());
         }
         else
         {
+            webView->m_loadingIcon = true;
             QIcon icon(QLatin1String(":loading.gif"));
             setTabIcon(index, icon);
         }
+    }
+}
+
+void TabWidget::webViewLoadFinished(bool succes)
+{
+    qDebug() << "webViewLoadFinished" << succes;
+
+    WebView *webView = qobject_cast<WebView*>(sender());
+    int index = webViewIndex(webView);
+    if (-1 != index)
+    {
+        if (webView->m_loadingIcon)
+            setTabIcon(index, QIcon());
+
+        webView->m_newTab  = false;
+        webView->m_virtTab = false;
     }
 }
 
@@ -791,7 +830,10 @@ void TabWidget::webViewIconChanged(const QIcon &icon)
     WebView *webView = qobject_cast<WebView*>(sender());
     int index = webViewIndex(webView);
     if (-1 != index)
+    {
         setTabIcon(index, icon);
+        webView->m_loadingIcon = false;
+    }
 }
 
 void TabWidget::webViewTitleChanged(const QString &title)

@@ -131,6 +131,7 @@ private:
 public:
     bool m_virtTab;
     bool m_newTab;
+    bool m_loadingIcon;
 };
 
 #endif

@@ -214,6 +214,7 @@ protected:
 public slots:
     void loadUrlInCurrentTab(const QUrl &url);
     WebView *newTab(bool makeCurrent = true);
+    WebView *newTabByUser(bool makeCurrent = true);
     void cloneTab(int index = -1);
     void requestCloseTab(int index = -1);
     void closeTab(int index);
@@ -230,6 +231,7 @@ private slots:
     void aboutToShowRecentTriggeredAction(QAction *action);
     void downloadRequested(QWebEngineDownloadItem *download);
     void webViewLoadStarted();
+    void webViewLoadFinished(bool);
     void webViewIconChanged(const QIcon &icon);
     void webViewTitleChanged(const QString &title);
     void webViewUrlChanged(const QUrl &url);
@@ -270,6 +272,8 @@ private:
     QToolButton *newTabButton_;
 
     const char *newTabTitle;
+
+    bool m_virtMode;
 };
 
 #endif // TABWIDGET_H
