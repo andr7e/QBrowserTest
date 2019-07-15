@@ -191,7 +191,8 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
 
     slotUpdateWindowTitle();
     loadDefaultState();
-    m_tabWidget->newTab();
+
+    if (m_tabWidget->size() == 0) m_tabWidget->newTab();
 
     int size = m_tabWidget->lineEditStack()->sizeHint().height();
     m_navigationBar->setIconSize(QSize(size, size));
@@ -224,8 +225,13 @@ void BrowserMainWindow::save()
     BrowserApplication::instance()->saveSession();
 
     QSettings settings;
+
+    settings.beginGroup(QLatin1String("tabs"));
+    bool saveTabs = settings.value(QLatin1String("saveTabs"), false).toBool();
+    settings.endGroup();
+
     settings.beginGroup(QLatin1String("BrowserMainWindow"));
-    QByteArray data = saveState(false);
+    QByteArray data = saveState(saveTabs);
     settings.setValue(QLatin1String("defaultState"), data);
     settings.endGroup();
 }
@@ -706,6 +712,8 @@ void BrowserMainWindow::slotViewStatusbar()
 
 void BrowserMainWindow::loadUrl(const QUrl &url)
 {
+    qDebug() << "loadUrl" << currentTab() << url.isValid();
+
     if (!currentTab() || !url.isValid())
         return;
 
@@ -888,7 +896,13 @@ void BrowserMainWindow::slotPrivateBrowsing()
 
 void BrowserMainWindow::closeEvent(QCloseEvent *event)
 {
-    if (m_tabWidget->count() > 1) {
+    QSettings settings;
+
+    settings.beginGroup(QLatin1String("tabs"));
+    bool saveTabs = settings.value(QLatin1String("saveTabs"), false).toBool();
+    settings.endGroup();
+
+    if (m_tabWidget->count() > 1 && ! saveTabs) {
         int ret = QMessageBox::warning(this, QString(),
                            tr("Are you sure you want to close the window?"
                               "  There are %1 tabs open").arg(m_tabWidget->count()),
@@ -1035,7 +1049,7 @@ void BrowserMainWindow::loadPage(const QString &page)
 {
     QUrl url = QUrl::fromUserInput(page);
 
-    //qDebug() << url.toString();
+    qDebug() << "loadPage" << url.toString();
 
     //qDebug() << url.scheme(); // http, ftp
     //qDebug() << url.host();   // site.zone

@@ -129,6 +129,11 @@ void SettingsDialog::loadFromSettings()
     settings.beginGroup(QLatin1String("MainWindow"));
     const QString defaultHome = QLatin1String(BrowserMainWindow::defaultHome);
     homeLineEdit->setText(settings.value(QLatin1String("home"), defaultHome).toString());
+    saveSessionCheckBox->setChecked(settings.value(QLatin1String("saveTabs"), false).toBool());
+    settings.endGroup();
+
+    settings.beginGroup(QLatin1String("tabs"));
+    saveSessionCheckBox->setChecked(settings.value(QLatin1String("saveTabs"), false).toBool());
     settings.endGroup();
 
     settings.beginGroup(QLatin1String("history"));
@@ -201,6 +206,10 @@ void SettingsDialog::saveToSettings()
     QSettings settings;
     settings.beginGroup(QLatin1String("MainWindow"));
     settings.setValue(QLatin1String("home"), homeLineEdit->text());
+    settings.endGroup();
+
+    settings.beginGroup(QLatin1String("tabs"));
+    settings.setValue(QLatin1String("saveTabs"), saveSessionCheckBox->isChecked());
     settings.endGroup();
 
     settings.beginGroup(QLatin1String("general"));

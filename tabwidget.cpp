@@ -627,12 +627,16 @@ WebView *TabWidget::newTab(bool makeCurrent)
     webView->setPage(new WebPage(m_profile, webView));
 
     //webView->setUrl(QUrl("newtab"));
-    QString html = HtmlTemplateManager::get("newtab");
+    //QString html = HtmlTemplateManager::get("newtab");
 
     if (m_virtMode)
     {
+        QString html = HtmlTemplateManager::get("newtab");
+
         webView->m_virtTab = true;
         webView->m_newTab  = true;
+
+        webView->setContent(html.toLatin1(), "text/html;charset=UTF-8"); //, QUrl());
     }
 
     /*
@@ -642,7 +646,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
     }
     */
 
-    webView->setContent(html.toLatin1(), "text/html;charset=UTF-8"); //, QUrl());
+    //webView->setContent(html.toLatin1(), "text/html;charset=UTF-8"); //, QUrl());
     //setHtml 2mb limit encode to url
 
     urlLineEdit->setWebView(webView);
@@ -979,11 +983,17 @@ QByteArray TabWidget::saveState() const
     QStringList tabs;
     for (int i = 0; i < count(); ++i) {
         if (WebView *tab = qobject_cast<WebView*>(widget(i))) {
-            tabs.append(tab->url().toString());
+
+            QString url = tab->url().toString();
+
+            if ( ! url.isEmpty() && ! url.contains("about:blank")) tabs.append(url);
         } else {
-            tabs.append(QString());
+            //tabs.append(QString());
         }
     }
+
+    qDebug() << "TabWidget::saveState" << tabs;
+
     stream << tabs;
     stream << currentIndex();
     return data;
@@ -1007,9 +1017,12 @@ bool TabWidget::restoreState(const QByteArray &state)
     QStringList openTabs;
     stream >> openTabs;
 
-    for (int i = 0; i < openTabs.count(); ++i) {
-        if (i != 0)
-            newTab();
+    qDebug() << "TabWidget::restoreState" << openTabs;
+
+    for (int i = 0; i < openTabs.count(); ++i)
+    {
+        newTab();
+
         loadPage(openTabs.at(i));
     }
 

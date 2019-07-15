@@ -448,6 +448,8 @@ void WebView::loadUrl(const QUrl &url)
 
     //m_newTab = false;
 
+    qDebug() << "WebView::loadUrl" << site;
+
     if (site.contains("about.home"))
     {
         m_virtTab = true;

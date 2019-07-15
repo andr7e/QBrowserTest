@@ -249,16 +249,23 @@ void BrowserApplication::postLaunch()
 
     loadSettings();
 
+    QSettings settings;
+
+    settings.beginGroup(QLatin1String("tabs"));
+    bool saveTabs = settings.value(QLatin1String("saveTabs"), false).toBool();
+    settings.endGroup();
+
     // newMainWindow() needs to be called in main() for this to happen
     if (m_mainWindows.count() > 0) {
         const QString url = getCommandLineUrlArgument();
         if (!url.isEmpty()) {
             mainWindow()->loadPage(url);
         } else {
-            mainWindow()->slotHome();
+            if ( ! saveTabs)
+                mainWindow()->slotHome();
         }
-
     }
+
     BrowserApplication::historyManager();
 }
 
