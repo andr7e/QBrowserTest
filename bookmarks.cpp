@@ -974,8 +974,10 @@ void BookmarksToolBar::build()
             QAction *a = addWidget(button);
             a->setText(idx.data().toString());
         } else {
+            QVariant var = idx.data(BookmarksModel::UrlRole);
             QAction *action = addAction(idx.data().toString());
-            action->setData(idx.data(BookmarksModel::UrlRole));
+            action->setToolTip(var.toString());
+            action->setData(var);
         }
     }
 }

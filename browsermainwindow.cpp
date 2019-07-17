@@ -192,7 +192,7 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     slotUpdateWindowTitle();
     loadDefaultState();
 
-    if (m_tabWidget->size() == 0) m_tabWidget->newTab();
+    if (m_tabWidget->count() == 0) m_tabWidget->newTab();
 
     int size = m_tabWidget->lineEditStack()->sizeHint().height();
     m_navigationBar->setIconSize(QSize(size, size));

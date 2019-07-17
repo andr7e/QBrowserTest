@@ -59,6 +59,7 @@
 #include "urllineedit.h"
 #include "webview.h"
 #include "htmltemplatemanager.h"
+#include "chasewidget.h"
 
 #include <QWebEngineDownloadItem>
 #include <QWebEngineProfile>
@@ -96,6 +97,16 @@ TabBar::TabBar(QWidget *parent)
             this, SIGNAL(closeTab(int)));
     setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     setMovable(true);
+
+    spinnerAnimation = new ChaseWidget(this);
+    spinnerAnimation->setActive(false);
+
+    connect(spinnerAnimation, SIGNAL(updated()), SLOT(update()));
+}
+
+TabBar::~TabBar()
+{
+
 }
 
 void TabBar::selectTabAction()
@@ -174,7 +185,13 @@ void TabBar::closeOtherTabs()
 void TabBar::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
+    {
         m_dragStartPos = event->pos();
+
+        // To prevent bug with animation
+        // Maybe more good solution with move animation
+        m_loadingHash.clear();
+    }
 
     QTabBar::mousePressEvent(event);
 
@@ -247,6 +264,64 @@ void TabBar::unmuteTab()
         int index = action->data().toInt();
         emit muteTab(index, false);
     }
+}
+
+void TabBar::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event)
+
+    QTabBar::paintEvent(event);
+
+    QPainter painter(this);
+
+    for (int i = 0; i < count(); i++)
+    {
+        QStyleOptionTab tab;
+        initStyleOption(&tab, i);
+
+        bool loading = m_loadingHash.value(i);
+
+        qDebug() << "paintEvent" << i << loading;
+
+        if (loading)
+        {
+            QRect rect = tab.rect;
+
+            //painter.setBrush(Qt::red);
+            //painter.drawEllipse(rect);
+
+            QSize iconSize(tab.iconSize); //  QSize(20,20
+            //QRect iconRect = QRect(0, 0, iconSize.width(), iconSize.height());
+
+            spinnerAnimation->paint(&painter, rect, iconSize); //QRect(0,0,30,30));
+            //painter.restore();
+        }
+        else
+        {
+            //
+        }
+    }
+}
+
+void TabBar::setTabLoading(int index, bool loading)
+{
+    if (loading)
+    {
+        m_loadingHash[index] = loading;
+
+        spinnerAnimation->setAnimated(loading);
+    }
+    else
+    {
+        m_loadingHash.remove(index);
+
+        if (m_loadingHash.isEmpty())
+        {
+            spinnerAnimation->setAnimated(loading);
+        }
+    }
+
+    qDebug() << "setTabLoading" << loading << m_loadingHash;
 }
 
 TabWidget::TabWidget(QWidget *parent)
@@ -783,6 +858,22 @@ void TabWidget::setProfile(QWebEngineProfile *profile)
     }
 }
 
+void TabWidget::setTabLoading(int index, bool loading)
+{
+    if (loading)
+    {
+        //QIcon icon(QLatin1String(":loading.gif"));
+        QPixmap pixmap(16,16);
+        pixmap.fill(Qt::transparent);
+        QIcon icon(pixmap);
+        setTabIcon(index, icon);
+    }
+
+    TabBar* bar = (TabBar*)tabBar();
+
+    if (bar) bar->setTabLoading(index, loading);
+}
+
 void TabWidget::paintEvent(QPaintEvent *event)
 {
     QTabWidget::paintEvent(event);
@@ -805,8 +896,7 @@ void TabWidget::webViewLoadStarted()
         else
         {
             webView->m_loadingIcon = true;
-            QIcon icon(QLatin1String(":loading.gif"));
-            setTabIcon(index, icon);
+            setTabLoading(index, true);
         }
     }
 }
@@ -820,7 +910,10 @@ void TabWidget::webViewLoadFinished(bool succes)
     if (-1 != index)
     {
         if (webView->m_loadingIcon)
+        {
+            setTabLoading(index, false);
             setTabIcon(index, QIcon());
+        }
 
         webView->m_newTab  = false;
         webView->m_virtTab = false;
@@ -835,8 +928,9 @@ void TabWidget::webViewIconChanged(const QIcon &icon)
     int index = webViewIndex(webView);
     if (-1 != index)
     {
-        setTabIcon(index, icon);
+        setTabLoading(index, false);
         webView->m_loadingIcon = false;
+        setTabIcon(index, icon);
     }
 }
 

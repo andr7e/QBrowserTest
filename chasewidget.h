@@ -67,12 +67,17 @@ QT_END_NAMESPACE
 class ChaseWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     ChaseWidget(QWidget *parent = 0, QPixmap pixmap = QPixmap(), bool pixmapEnabled = false);
 
     void setAnimated(bool value);
     void setPixmapEnabled(bool enable);
     QSize sizeHint() const;
+
+    void paint(QPainter *painter, const QRect &rect, const QSize &m_scaledSize);
+
+    void setActive(bool active);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -82,6 +87,11 @@ private:
     int segmentCount() const;
     QColor colorForSegment(int segment) const;
 
+signals:
+    void updated();
+
+private:
+
     int m_segment;
     int m_delay;
     int m_step;
@@ -89,6 +99,9 @@ private:
     bool m_animated;
     QPixmap m_pixmap;
     bool m_pixmapEnabled;
+
+    int m_astep;
+    bool m_active;
 };
 
 #endif

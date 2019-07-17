@@ -62,6 +62,8 @@ class QWebEngineProfile;
 class QWebEngineView;
 QT_END_NAMESPACE
 
+class ChaseWidget;
+
 /*
     Tab bar with a few more features such as a context menu and shortcuts
  */
@@ -81,6 +83,11 @@ signals:
 
 public:
     TabBar(QWidget *parent = 0);
+    ~TabBar();
+
+    void paintEvent(QPaintEvent *event);
+
+    void setTabLoading(int index, bool loading);
 
 protected:
     void mousePressEvent(QMouseEvent* event);
@@ -102,6 +109,10 @@ private:
 
     QPoint m_dragStartPos;
     int m_dragCurrentIndex;
+
+    ChaseWidget *spinnerAnimation;
+
+    QHash<int,bool> m_loadingHash;
 };
 
 #include <QWebEnginePage>
@@ -203,6 +214,8 @@ public:
     bool restoreState(const QByteArray &state);
 
     void setProfile(QWebEngineProfile *profile);
+
+    void setTabLoading(int index, bool loading);
 
     void paintEvent(QPaintEvent *event);
 
