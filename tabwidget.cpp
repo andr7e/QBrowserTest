@@ -416,6 +416,14 @@ TabWidget::~TabWidget()
         delete m_fullScreenView;
 }
 
+#define MAX_TITLE_LEN 30
+
+void TabWidget::setTabTitle(int index, const QString &title)
+{
+    setTabText(index, title.length() > MAX_TITLE_LEN ? title.left(MAX_TITLE_LEN) : title);
+    setTabToolTip(index, title);
+}
+
 void TabWidget::clear()
 {
     // clear the recently closed tabs
@@ -944,8 +952,9 @@ void TabWidget::webViewTitleChanged(const QString &title)
 
     int index = webViewIndex(webView);
     if (-1 != index) {
-        setTabText(index, title);
+        setTabTitle(index, title);
     }
+
     if (currentIndex() == index)
         emit setCurrentTitle(title);
     BrowserApplication::historyManager()->updateHistoryItem(webView->url(), title);
@@ -959,12 +968,13 @@ void TabWidget::webPageMutedOrAudibleChanged() {
     if (-1 != index) {
         QString title = webView->title();
 
-        bool muted = webPage->isAudioMuted();
+        bool muted   = webPage->isAudioMuted();
         bool audible = webPage->recentlyAudible();
-        if (muted) title += tr(" (muted)");
-        else if (audible) title += tr(" (audible)");
 
-        setTabText(index, title);
+        if (muted) title = tr("(muted) ") + title;
+        else if (audible) title = tr("(audible) ") + title;
+
+        setTabTitle(index, title);
     }
 }
 

@@ -217,6 +217,8 @@ public:
 
     void setTabLoading(int index, bool loading);
 
+    void setTabTitle(int index, const QString &title);
+
     void paintEvent(QPaintEvent *event);
 
 protected:
