@@ -85,6 +85,9 @@
 
 #include <QtCore/QDebug>
 #include <QSplitter>
+#include <QDockWidget>
+
+#define BROWSER_NAME "Polaris Browser"
 
 #define USE_SPLITTER_BETWEEN_LINE
 #define USE_CUSTOM_ICONS
@@ -117,12 +120,17 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     , m_reload(0)
     , m_currentPrinter(nullptr)
     , m_findDialog(new FindDialog(this))
+    , m_progressBar(new QProgressBar(this))
 {
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setAttribute(Qt::WA_DeleteOnClose, true);
     statusBar()->setSizeGripEnabled(true);
     setupMenu();
     setupToolBar();
+
+    m_progressBar->setMaximumHeight(2);
+    m_progressBar->setTextVisible(false);
+    m_progressBar->setStyleSheet(QStringLiteral("QProgressBar {border: 0px} QProgressBar::chunk {background-color: #00cc66}")); // da4453
 
     QWidget *centralWidget = new QWidget(this);
     BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
@@ -149,7 +157,24 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     addToolBar(m_bookmarksToolbar);
 #endif
 
+    dockBookmakrksWidget = new QDockWidget(tr("Bookmarks"), this);
+    QTreeView *treeView = new QTreeView(dockBookmakrksWidget);
+    treeView->setModel(bookmarksModel);
+    //treeView->setExpanded(bookmarksModel->index(0, 0), true);
+    treeView->expandAll();
+    treeView->setAlternatingRowColors(true);
+    QFontMetrics fm(font());
+    int header = fm.width(QLatin1Char('m')) * 40;
+    treeView->header()->resizeSection(0, header);
+    treeView->header()->setStretchLastSection(true);
+    treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slotOpenBookmark(QModelIndex)));
+    dockBookmakrksWidget->setWidget(treeView);
+    dockBookmakrksWidget->setVisible(false);
+    addDockWidget(Qt::LeftDockWidgetArea, dockBookmakrksWidget);
+
     layout->addWidget(m_tabWidget);
+    layout->addWidget(m_progressBar);
     layout->addWidget(m_findDialog);
 
     centralWidget->setLayout(layout);
@@ -505,14 +530,19 @@ void BrowserMainWindow::setupMenu()
 
     QAction *showAllBookmarksAction = new QAction(tr("Show All Bookmarks"), this);
     connect(showAllBookmarksAction, SIGNAL(triggered()), this, SLOT(slotShowBookmarksDialog()));
+
+    QAction *showBookmarksPanelAction = new QAction(tr("Show Bookmarks panel"), this);
+    connect(showBookmarksPanelAction, SIGNAL(triggered()), this, SLOT(slotShowBookmarksPanel()));
+
     m_addBookmark = new QAction(QIcon(QLatin1String(":addbookmark.png")), tr("Add Bookmark..."), this);
     m_addBookmark->setIconVisibleInMenu(false);
 
     connect(m_addBookmark, SIGNAL(triggered()), this, SLOT(slotAddBookmark()));
     m_addBookmark->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
 
-    bookmarksActions.append(showAllBookmarksAction);
-    bookmarksActions.append(m_addBookmark);
+    bookmarksActions << showAllBookmarksAction;
+    bookmarksActions << showBookmarksPanelAction;
+    bookmarksActions << m_addBookmark;
     bookmarksMenu->setInitialActions(bookmarksActions);
 
     // Window
@@ -530,7 +560,7 @@ void BrowserMainWindow::setupMenu()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
-    helpMenu->addAction(tr("About &Demo Browser"), this, SLOT(slotAboutApplication()));
+    helpMenu->addAction(tr("About"), this, SLOT(slotAboutApplication()));
 }
 
 void BrowserMainWindow::setupToolBar()
@@ -580,6 +610,10 @@ void BrowserMainWindow::setupToolBar()
     connect(m_addBookmarkToolBar, SIGNAL(triggered()), this, SLOT(slotAddBookmark()));
     m_addBookmarkToolBar->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
 
+    m_bookmarkMenuToolBar = new QAction(QIcon(QLatin1String(":bookmark-menu.png")), tr("Show bookmarks panel"), this);
+    connect(m_bookmarkMenuToolBar, SIGNAL(triggered()), this, SLOT(slotShowBookmarksPanel()));
+    m_bookmarkMenuToolBar->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
+
     //
 
 #ifndef USE_SPLITTER_BETWEEN_LINE
@@ -606,6 +640,7 @@ void BrowserMainWindow::setupToolBar()
 
     QToolBar *toolBar = new QToolBar(this);
     toolBar->addAction(m_addBookmarkToolBar);
+    toolBar->addAction(m_bookmarkMenuToolBar);
 
     QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
     leftSideLayout->setContentsMargins(0,0,0,0);
@@ -634,6 +669,8 @@ void BrowserMainWindow::setupToolBar()
 
     m_navigationBar->addWidget(splitter);
 #endif
+
+    m_chaseWidget->setVisible(false);
 }
 
 void BrowserMainWindow::slotShowBookmarksDialog()
@@ -642,6 +679,12 @@ void BrowserMainWindow::slotShowBookmarksDialog()
     connect(dialog, SIGNAL(openUrl(QUrl)),
             m_tabWidget, SLOT(loadUrlInCurrentTab(QUrl)));
     dialog->show();
+}
+
+void BrowserMainWindow::slotShowBookmarksPanel()
+{
+    bool isVisible = dockBookmakrksWidget->isVisible();
+    dockBookmakrksWidget->setVisible( ! isVisible);
 }
 
 void BrowserMainWindow::slotAddBookmark()
@@ -751,12 +794,12 @@ void BrowserMainWindow::slotUpdateStatusbar(const QString &string)
 void BrowserMainWindow::slotUpdateWindowTitle(const QString &title)
 {
     if (title.isEmpty()) {
-        setWindowTitle(tr("Qt Demo Browser"));
+        setWindowTitle(tr(BROWSER_NAME));
     } else {
 #if defined(Q_OS_OSX)
         setWindowTitle(title);
 #else
-        setWindowTitle(tr("%1 - Qt Demo Browser", "Page title and Browser name").arg(title));
+        setWindowTitle(tr("%1 - %2", "Page title and Browser name").arg(title).arg(BROWSER_NAME));
 #endif
     }
 }
@@ -1005,6 +1048,20 @@ void BrowserMainWindow::slotViewFullScreen(bool makeFullScreen)
     }
 }
 
+void BrowserMainWindow::slotOpenBookmark(const QModelIndex &index)
+{
+    qDebug() << index;
+
+    if ( ! index.isValid()) return;
+
+    if (!index.parent().isValid())
+        return;
+
+    QUrl url = index.sibling(index.row(), 1).data(BookmarksModel::UrlRole).toUrl();
+
+    loadUrl(url);
+}
+
 void BrowserMainWindow::slotHome()
 {
     QSettings settings;
@@ -1088,6 +1145,14 @@ void BrowserMainWindow::slotLoadProgress(int progress)
         m_stopReload->setIcon(m_reloadIcon);
         connect(m_stopReload, SIGNAL(triggered()), m_reload, SLOT(trigger()));
         m_stopReload->setToolTip(tr("Reload the current page"));
+    }
+
+    if (0 < progress && progress < 100) {
+        m_progressBar->setValue(progress);
+        m_progressBar->setVisible(true);
+    } else {
+        m_progressBar->setValue(0);
+        m_progressBar->setVisible(false);
     }
 }
 

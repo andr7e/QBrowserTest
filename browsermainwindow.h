@@ -58,6 +58,7 @@
 QT_BEGIN_NAMESPACE
 class QPrinter;
 class QWebEnginePage;
+class QProgressBar;
 QT_END_NAMESPACE
 
 class AutoSaver;
@@ -120,6 +121,7 @@ private slots:
     void slotEditFindNext();
     void slotEditFindPrevious();
     void slotShowBookmarksDialog();
+    void slotShowBookmarksPanel();
     void slotAddBookmark();
     void slotViewZoomIn();
     void slotViewZoomOut();
@@ -128,6 +130,7 @@ private slots:
     void slotViewBookmarksBar();
     void slotViewStatusbar();
     void slotViewFullScreen(bool enable);
+    void slotOpenBookmark(const QModelIndex &index);
 
     void slotWebSearch();
     void slotToggleInspector(bool enable);
@@ -180,6 +183,7 @@ private:
     QAction *m_addBookmark;
 
     QAction *m_addBookmarkToolBar;
+    QAction *m_bookmarkMenuToolBar;
 
     QPrinter *m_currentPrinter;
 
@@ -191,6 +195,8 @@ private:
     friend class BrowserApplication;
 
     FindDialog *m_findDialog;
+    QProgressBar *m_progressBar;
+    QDockWidget *dockBookmakrksWidget;
 };
 
 #endif // BROWSERMAINWINDOW_H

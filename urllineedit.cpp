@@ -381,6 +381,7 @@ void UrlLineEdit::paintEvent(QPaintEvent *event)
 
     ExLineEdit::paintEvent(event);
 
+    /*
     QPainter painter(this);
     QStyleOptionFrame panel;
     initStyleOption(&panel);
@@ -399,6 +400,7 @@ void UrlLineEdit::paintEvent(QPaintEvent *event)
             painter.drawRect(progressRect);
         }
     }
+    */
 
     /*
     if (m_webView)

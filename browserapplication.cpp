@@ -129,7 +129,7 @@ BrowserApplication::BrowserApplication(int &argc, char **argv)
 {
     QCoreApplication::setOrganizationName(QLatin1String("Qt"));
     QCoreApplication::setApplicationName(QLatin1String("demobrowser"));
-    QCoreApplication::setApplicationVersion(QLatin1String("0.1"));
+    QCoreApplication::setApplicationVersion(QLatin1String("1.0 alpha 1"));
     QString serverName = QCoreApplication::applicationName()
         + QString::fromLatin1(QT_VERSION_STR).remove('.') + QLatin1String("webengine");
     QLocalSocket socket;

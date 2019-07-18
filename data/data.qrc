@@ -12,5 +12,6 @@
         <file>process-refresh.png</file>
         <file>process-stop.png</file>
         <file>addbookmark.png</file>
+        <file>bookmark-menu.png</file>
     </qresource>
 </RCC>
