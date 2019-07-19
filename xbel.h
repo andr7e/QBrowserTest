@@ -53,6 +53,7 @@
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDateTime>
+#include <QIcon>
 
 class BookmarkNode
 {
@@ -79,6 +80,8 @@ public:
     QString url;
     QString title;
     QString desc;
+    QIcon icon;
+    QString iconBase64;
     bool expanded;
 
 private:
@@ -99,6 +102,7 @@ private:
     void readXBEL(BookmarkNode *parent);
     void readTitle(BookmarkNode *parent);
     void readDescription(BookmarkNode *parent);
+    void readIcon(BookmarkNode *parent);
     void readSeparator(BookmarkNode *parent);
     void readFolder(BookmarkNode *parent);
     void readBookmarkNode(BookmarkNode *parent);

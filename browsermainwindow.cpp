@@ -692,7 +692,8 @@ void BrowserMainWindow::slotAddBookmark()
     WebView *webView = currentTab();
     QString url = webView->url().toString();
     QString title = webView->title();
-    AddBookmarkDialog dialog(url, title);
+    QIcon icon = webView->icon();
+    AddBookmarkDialog dialog(url, title, icon);
     dialog.exec();
 }
 

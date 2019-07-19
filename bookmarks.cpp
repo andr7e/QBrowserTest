@@ -481,6 +481,10 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const
         if (index.column() == 0) {
             if (bookmarkNode->type() == BookmarkNode::Folder)
                 return QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+
+            if ( ! bookmarkNode->icon.isNull())
+                return bookmarkNode->icon;
+
             return BrowserApplication::instance()->icon(bookmarkNode->url);
         }
     }
@@ -692,9 +696,10 @@ bool AddBookmarkProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
     return sourceModel()->hasChildren(idx);
 }
 
-AddBookmarkDialog::AddBookmarkDialog(const QString &url, const QString &title, QWidget *parent, BookmarksManager *bookmarkManager)
+AddBookmarkDialog::AddBookmarkDialog(const QString &url, const QString &title, const QIcon &icon, QWidget *parent, BookmarksManager *bookmarkManager)
     : QDialog(parent)
     , m_url(url)
+    , m_icon(icon)
     , m_bookmarksManager(bookmarkManager)
 {
     setWindowFlags(Qt::Sheet);
@@ -732,6 +737,7 @@ void AddBookmarkDialog::accept()
     BookmarkNode *parent = m_bookmarksManager->bookmarksModel()->node(index);
     BookmarkNode *bookmark = new BookmarkNode(BookmarkNode::Bookmark);
     bookmark->url = m_url;
+    bookmark->icon = m_icon;
     bookmark->title = name->text();
     m_bookmarksManager->addBookmark(parent, bookmark);
     QDialog::accept();

@@ -51,6 +51,7 @@
 #include "xbel.h"
 
 #include <QtCore/QFile>
+#include "utils.h"
 
 BookmarkNode::BookmarkNode(BookmarkNode::Type type, BookmarkNode *parent) :
      expanded(false)
@@ -205,6 +206,15 @@ void XbelReader::readDescription(BookmarkNode *parent)
     parent->desc = readElementText();
 }
 
+void XbelReader::readIcon(BookmarkNode *parent)
+{
+    Q_ASSERT(isStartElement() && name() == QLatin1String("icon"));
+    parent->iconBase64 = readElementText();
+
+    if ( ! parent->iconBase64.isEmpty())
+        parent->icon = Utils::convertBase64ToIcon(parent->iconBase64);
+}
+
 void XbelReader::readSeparator(BookmarkNode *parent)
 {
     new BookmarkNode(BookmarkNode::Separator, parent);
@@ -222,6 +232,8 @@ void XbelReader::readBookmarkNode(BookmarkNode *parent)
             readTitle(bookmark);
         else if (name() == QLatin1String("desc"))
             readDescription(bookmark);
+        else if (name() == QLatin1String("icon"))
+            readIcon(bookmark);
         else
             skipCurrentElement();
     }
@@ -278,6 +290,10 @@ void XbelWriter::writeItem(const BookmarkNode *parent)
         if (!parent->url.isEmpty())
             writeAttribute(QLatin1String("href"), parent->url);
         writeTextElement(QLatin1String("title"), parent->title);
+
+        if (!parent->icon.isNull())
+            writeTextElement(QLatin1String("icon"), Utils::convertIconToBase64(parent->icon));
+
         if (!parent->desc.isEmpty())
             writeAttribute(QLatin1String("desc"), parent->desc);
         writeEndElement();
