@@ -87,7 +87,7 @@
 #include <QSplitter>
 #include <QDockWidget>
 
-#define BROWSER_NAME "Polaris Browser"
+#define BROWSER_NAME "E7 Browser"
 
 #define USE_SPLITTER_BETWEEN_LINE
 #define USE_CUSTOM_ICONS
@@ -758,8 +758,15 @@ void BrowserMainWindow::loadUrl(const QUrl &url)
 {
     qDebug() << "loadUrl" << currentTab() << url.isValid();
 
-    if (!currentTab() || !url.isValid())
+    if ( ! url.isValid()) // if (!currentTab() || !url.isValid())
         return;
+
+    if (!currentTab() || !url.isValid())
+    {
+        int index = m_tabWidget->currentIndex();
+        m_tabWidget->newTab();
+        m_tabWidget->closeStartPageTab(index);
+    }
 
     m_tabWidget->currentLineEdit()->setText(QString::fromUtf8(url.toEncoded()));
     m_tabWidget->loadUrlInCurrentTab(url);

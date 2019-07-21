@@ -60,6 +60,7 @@
 #include "webview.h"
 #include "htmltemplatemanager.h"
 #include "chasewidget.h"
+#include "bookmarks.h"
 
 #include <QWebEngineDownloadItem>
 #include <QWebEngineProfile>
@@ -75,7 +76,6 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QToolButton>
-
 #include <QtCore/QDebug>
 
 TabBar::TabBar(QWidget *parent)
@@ -465,7 +465,11 @@ void TabWidget::currentChanged(int index)
 {
     WebView *webView = this->webView(index);
     if (!webView)
+    {
+        emit setCurrentTitle(tabText(index));
+        m_lineEdits->setCurrentIndex(index);
         return;
+    }
 
     Q_ASSERT(m_lineEdits->count() == count());
 
@@ -656,6 +660,8 @@ void TabWidget::setupPage(QWebEnginePage* page)
     }
 }
 
+//
+
 WebView *TabWidget::newTabByUser(bool makeCurrent)
 {
     m_virtMode = true;
@@ -702,6 +708,31 @@ WebView *TabWidget::newTab(bool makeCurrent)
         addTab(emptyWidget, tr(newTabTitle));
         connect(this, SIGNAL(currentChanged(int)),
             this, SLOT(currentChanged(int)));
+
+        return 0;
+    }
+
+    if (m_virtMode)
+    {
+        // Start Page
+
+        BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
+
+        QTreeView *treeView = new QTreeView(this);
+        treeView->setModel(bookmarksModel);
+        //treeView->setExpanded(bookmarksModel->index(0, 0), true);
+        treeView->expandAll();
+        treeView->setAlternatingRowColors(true);
+        QFontMetrics fm(font());
+        int header = fm.width(QLatin1Char('m')) * 40;
+        treeView->header()->resizeSection(0, header);
+        treeView->header()->setStretchLastSection(true);
+        treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+        addTab(treeView, tr(newTabTitle));
+
+        setCurrentWidget(treeView);
+
         return 0;
     }
 
@@ -818,9 +849,14 @@ void TabWidget::requestCloseTab(int index)
     if (index < 0 || index >= count())
         return;
     WebView *tab = webView(index);
-    if (!tab)
-        return;
-    tab->page()->triggerAction(QWebEnginePage::RequestClose);
+    if (tab)
+        tab->page()->triggerAction(QWebEnginePage::RequestClose);
+    else
+    {
+        // Start page
+
+        closeStartPageTab(index);
+    }
 }
 
 void TabWidget::closeTab(int index)
@@ -852,6 +888,20 @@ void TabWidget::closeTab(int index)
         emit lastTabClosed();
 }
 
+void TabWidget::closeStartPageTab(int index)
+{
+    QWidget *lineEdit = m_lineEdits->widget(index);
+    m_lineEdits->removeWidget(lineEdit);
+    lineEdit->deleteLater();
+
+    removeTab(index);
+
+    emit tabsChanged();
+
+    if (count() == 0)
+        emit lastTabClosed();
+}
+
 void TabWidget::setProfile(QWebEngineProfile *profile)
 {
     m_profile = profile;
@@ -877,9 +927,8 @@ void TabWidget::setTabLoading(int index, bool loading)
         setTabIcon(index, icon);
     }
 
-    TabBar* bar = (TabBar*)tabBar();
-
-    if (bar) bar->setTabLoading(index, loading);
+    if (m_tabBar)
+        m_tabBar->setTabLoading(index, loading);
 }
 
 void TabWidget::paintEvent(QPaintEvent *event)

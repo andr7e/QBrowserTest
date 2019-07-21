@@ -233,6 +233,7 @@ public slots:
     void cloneTab(int index = -1);
     void requestCloseTab(int index = -1);
     void closeTab(int index);
+    void closeStartPageTab(int index);
     void closeOtherTabs(int index);
     void reloadTab(int index = -1);
     void reloadAllTabs();
