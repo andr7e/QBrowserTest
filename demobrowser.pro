@@ -19,7 +19,8 @@ FORMS += \
     proxy.ui \
     savepagedialog.ui \
     settings.ui \
-    finddialog.ui
+    finddialog.ui \
+    startpagewidget.ui
 
 HEADERS += \
     autosaver.h \
@@ -47,7 +48,8 @@ HEADERS += \
     searchengine.h \
     finddialog.h \
     htmltemplatemanager.h \
-    utils.h
+    utils.h \
+    startpagewidget.h
 
 SOURCES += \
     autosaver.cpp \
@@ -76,7 +78,8 @@ SOURCES += \
     searchengine.cpp \
     finddialog.cpp \
     htmltemplatemanager.cpp \
-    utils.cpp
+    utils.cpp \
+    startpagewidget.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 

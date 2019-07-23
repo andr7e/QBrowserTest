@@ -63,6 +63,7 @@ class QWebEngineView;
 QT_END_NAMESPACE
 
 class ChaseWidget;
+class QListView;
 
 /*
     Tab bar with a few more features such as a context menu and shortcuts
@@ -88,6 +89,7 @@ public:
     void paintEvent(QPaintEvent *event);
 
     void setTabLoading(int index, bool loading);
+    void clearLoadingState(int index);
 
 protected:
     void mousePressEvent(QMouseEvent* event);
@@ -228,6 +230,7 @@ protected:
 
 public slots:
     void loadUrlInCurrentTab(const QUrl &url);
+    void loadUrlInCurrentTab2(const QUrl &url);
     WebView *newTab(bool makeCurrent = true);
     WebView *newTabByUser(bool makeCurrent = true);
     void cloneTab(int index = -1);
@@ -290,6 +293,8 @@ private:
     const char *newTabTitle;
 
     bool m_virtMode;
+
+    QListView *m_listView;
 };
 
 #endif // TABWIDGET_H

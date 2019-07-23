@@ -50,18 +50,6 @@
 
 #include "tabwidget.h"
 
-#include "browserapplication.h"
-#include "browsermainwindow.h"
-#include "downloadmanager.h"
-#include "fullscreennotification.h"
-#include "history.h"
-#include "savepagedialog.h"
-#include "urllineedit.h"
-#include "webview.h"
-#include "htmltemplatemanager.h"
-#include "chasewidget.h"
-#include "bookmarks.h"
-
 #include <QWebEngineDownloadItem>
 #include <QWebEngineProfile>
 #include <QWebEngineFullScreenRequest>
@@ -77,6 +65,20 @@
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QToolButton>
 #include <QtCore/QDebug>
+
+#include "browserapplication.h"
+#include "browsermainwindow.h"
+#include "downloadmanager.h"
+#include "fullscreennotification.h"
+#include "history.h"
+#include "savepagedialog.h"
+#include "urllineedit.h"
+#include "webview.h"
+#include "htmltemplatemanager.h"
+#include "chasewidget.h"
+#include "bookmarks.h"
+#include "xbel.h"
+#include "startpagewidget.h"
 
 TabBar::TabBar(QWidget *parent)
     : QTabBar(parent)
@@ -281,7 +283,7 @@ void TabBar::paintEvent(QPaintEvent *event)
 
         bool loading = m_loadingHash.value(i);
 
-        qDebug() << "paintEvent" << i << loading;
+        //qDebug() << "paintEvent" << i << loading;
 
         if (loading)
         {
@@ -322,6 +324,11 @@ void TabBar::setTabLoading(int index, bool loading)
     }
 
     qDebug() << "setTabLoading" << loading << m_loadingHash;
+}
+
+void TabBar::clearLoadingState(int index)
+{
+    m_loadingHash.remove(index);
 }
 
 TabWidget::TabWidget(QWidget *parent)
@@ -718,6 +725,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
 
         BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
 
+        /*
         QTreeView *treeView = new QTreeView(this);
         treeView->setModel(bookmarksModel);
         //treeView->setExpanded(bookmarksModel->index(0, 0), true);
@@ -732,6 +740,61 @@ WebView *TabWidget::newTab(bool makeCurrent)
         addTab(treeView, tr(newTabTitle));
 
         setCurrentWidget(treeView);
+        */
+
+        /*
+        QToolBar *toolBar = new QToolBar(this);
+        toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
+        toolBar->setMinimumHeight(200);
+
+        for (int i = 0; i < bookmarksModel->rowCount(); i++)
+        {
+            QModelIndex parentIndex = bookmarksModel->index(i, 0);
+
+            BookmarkNode *node = bookmarksModel->node(parentIndex);
+
+            QList<BookmarkNode *> nodes = node->children();
+
+            foreach (BookmarkNode *node, nodes)
+            {
+                QModelIndex index = bookmarksModel->index(node);
+
+                QIcon icon = bookmarksModel->data(index, Qt::DecorationRole).value<QIcon>();
+                QString title = bookmarksModel->data(index).toString();
+                QString url = bookmarksModel->data(index, BookmarksModel::UrlStringRole).toString();
+
+                title = title.left(20);
+                int len = title.length();
+
+                qDebug() << "fff" << len << (20 - len)/2;
+
+                title = title.rightJustified((20 - len)/2 + len, '_');
+                title = title.leftJustified(20, '_');
+
+                QAction *action = new QAction(icon, title);
+                action->setToolTip(url);
+
+                toolBar->addAction(action);
+            }
+
+
+        }
+
+        addTab(toolBar, tr(newTabTitle));
+
+        setCurrentWidget(toolBar);
+        */
+
+        StartPageWidget *startPageWidget = new StartPageWidget(this);
+
+        startPageWidget->updateInfo(bookmarksModel);
+
+        connect(startPageWidget, SIGNAL(openUrl(QUrl)), SLOT(loadUrlInCurrentTab2(QUrl)));
+
+        addTab(startPageWidget, tr(newTabTitle));
+
+        setCurrentWidget(startPageWidget);
 
         return 0;
     }
@@ -850,7 +913,11 @@ void TabWidget::requestCloseTab(int index)
         return;
     WebView *tab = webView(index);
     if (tab)
+    {
         tab->page()->triggerAction(QWebEnginePage::RequestClose);
+
+        if (m_tabBar) m_tabBar->clearLoadingState(index);
+    }
     else
     {
         // Start page
@@ -883,7 +950,11 @@ void TabWidget::closeTab(int index)
     webView->deleteLater();
     emit tabsChanged();
     if (hasFocus && count() > 0)
-        currentWebView()->setFocus();
+    {
+        WebView *webView = currentWebView();
+        if (webView) webView->setFocus();
+    }
+
     if (count() == 0)
         emit lastTabClosed();
 }
@@ -1103,6 +1174,28 @@ void TabWidget::loadUrlInCurrentTab(const QUrl &url)
         webView->loadUrl(url);
 
         webView->setFocus();
+    }
+}
+
+void TabWidget::loadUrlInCurrentTab2(const QUrl &url)
+{
+    WebView *webView = currentWebView();
+    if (webView)
+    {
+        webView->loadUrl(url);
+
+        webView->setFocus();
+    }
+    else
+    {
+        //
+
+        int index = currentIndex();
+        newTab();
+        closeStartPageTab(index);
+
+        currentLineEdit()->setText(QString::fromUtf8(url.toEncoded()));
+        loadUrlInCurrentTab(url);
     }
 }
 
