@@ -329,8 +329,11 @@ bool BrowserMainWindow::restoreState(const QByteArray &state)
 
 void BrowserMainWindow::runScriptOnOpenViews(const QString &source)
 {
-    for (int i =0; i < tabWidget()->count(); ++i)
-        tabWidget()->webView(i)->page()->runJavaScript(source);
+    for (int i = 0; i < tabWidget()->count(); ++i)
+    {
+        WebView *webView = tabWidget()->webView(i);
+        if (webView) webView->page()->runJavaScript(source);
+    }
 }
 
 void BrowserMainWindow::setupMenu()

@@ -84,6 +84,7 @@ public:
     BookmarkNode *bookmarks();
     BookmarkNode *menu();
     BookmarkNode *toolbar();
+    BookmarkNode *startPage();
 
     BookmarksModel *bookmarksModel();
     QUndoStack *undoRedoStack() { return &m_commands; };
@@ -252,6 +253,7 @@ class AddBookmarkDialog : public QDialog, public Ui_AddBookmarkDialog
 public:
     AddBookmarkDialog(const QString &url, const QString &title, const QIcon &icon, QWidget *parent = 0, BookmarksManager *bookmarkManager = 0);
 
+    void setStartPageDefault();
 private slots:
     void accept();
 

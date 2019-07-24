@@ -47,9 +47,7 @@ StartPageWidget::StartPageWidget(QWidget *parent) :
     ui->listView->setModel(m_model);
 
     connect(ui->listView, &QListView::doubleClicked,  this, [=](QModelIndex index) {
-        QString url = ui->listView->model()->data(index, Qt::ToolTipRole).toString();
-
-        emit openUrl(url);
+        openItem(index);
     });
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -73,6 +71,8 @@ void StartPageWidget::updateInfo(BookmarksModel *bookmarksModel)
         QModelIndex parentIndex = bookmarksModel->index(i, 0);
 
         BookmarkNode *node = bookmarksModel->node(parentIndex);
+
+        if (node->title != tr("Start Page")) continue;
 
         QList<BookmarkNode *> nodes = node->children();
 
@@ -98,6 +98,20 @@ void StartPageWidget::updateInfo(BookmarksModel *bookmarksModel)
 
             m_model->setRowCount(row);
         }
+
+        // Virtual add tile
+
+        QIcon icon = QIcon(QLatin1String(":addbookmark.png"));
+
+        m_model->setItem(row, 0, new QStandardItem(icon, tr("New Page")));
+        QModelIndex index0 = m_model->index(row, 0);
+
+        m_model->setData(index0, tr("Add new page"), Qt::ToolTipRole);
+        m_model->setData(index0, 1, Roles::VirtualRole);
+
+        row++;
+
+        m_model->setRowCount(row);
     }
 }
 
@@ -121,11 +135,31 @@ void StartPageWidget::openItem()
 {
     QModelIndex index = ui->listView->currentIndex();
 
+    openItem(index);
+}
+
+void StartPageWidget::openItem(const QModelIndex &index)
+{
     if ( ! index.isValid()) return;
 
-    QString url = ui->listView->model()->data(index, Qt::ToolTipRole).toString();
+    int virt = ui->listView->model()->data(index, Roles::VirtualRole).toInt();
 
-    emit openUrl(url);
+    if (virt)
+    {
+        QString title = "New Page";
+        QString url   = "www.example.com";
+        QIcon icon;
+        AddBookmarkDialog dialog(url, title, icon);
+        dialog.setStartPageDefault();
+        dialog.exec();
+    }
+    else
+    {
+
+        QString url = ui->listView->model()->data(index, Qt::ToolTipRole).toString();
+
+        emit openUrl(url);
+    }
 }
 
 ///

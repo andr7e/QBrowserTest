@@ -16,6 +16,12 @@ class StartPageWidget : public QWidget
     Q_OBJECT
 
 public:
+
+    enum Roles
+    {
+        VirtualRole = Qt::UserRole
+    };
+
     explicit StartPageWidget(QWidget *parent = 0);
     ~StartPageWidget();
 
@@ -30,6 +36,9 @@ public slots:
 
 private slots:
     void on_settingsButton_clicked();
+
+private:
+    void openItem(const QModelIndex &index);
 
 private:
     Ui::StartPageWidget *ui;

@@ -69,8 +69,9 @@
 
 #include <QtCore/QDebug>
 
-#define BOOKMARKBAR "Bookmarks Bar"
-#define BOOKMARKMENU "Bookmarks Menu"
+#define BOOKMARKBAR   "Bookmarks Bar"
+#define BOOKMARKMENU  "Bookmarks Menu"
+#define BOOKMARKSTART "Start Page"
 
 BookmarksManager::BookmarksManager(QObject *parent)
     : QObject(parent)
@@ -116,6 +117,7 @@ void BookmarksManager::load()
                "%3").arg(reader.lineNumber()).arg(reader.columnNumber()).arg(reader.errorString()));
     }
 
+    BookmarkNode *startPage = 0;
     BookmarkNode *toolbar = 0;
     BookmarkNode *menu = 0;
     QList<BookmarkNode*> others;
@@ -137,6 +139,10 @@ void BookmarksManager::load()
             if (node->title == tr(BOOKMARKMENU) && !menu) {
                 menu = node;
             }
+
+            if (node->title == tr(BOOKMARKSTART) && !startPage) {
+                startPage = node;
+            }
         } else {
             others.append(node);
         }
@@ -155,6 +161,13 @@ void BookmarksManager::load()
         menu->title = tr(BOOKMARKMENU);
     } else {
         m_bookmarkRootNode->add(menu);
+    }
+
+    if (!startPage) {
+        startPage = new BookmarkNode(BookmarkNode::Folder, m_bookmarkRootNode);
+        startPage->title = tr(BOOKMARKSTART);
+    } else {
+        m_bookmarkRootNode->add(startPage);
     }
 
     for (int i = 0; i < others.count(); ++i)
@@ -243,6 +256,20 @@ BookmarkNode *BookmarksManager::toolbar()
     for (int i = m_bookmarkRootNode->children().count() - 1; i >= 0; --i) {
         BookmarkNode *node = m_bookmarkRootNode->children().at(i);
         if (node->title == tr(BOOKMARKBAR))
+            return node;
+    }
+    Q_ASSERT(false);
+    return 0;
+}
+
+BookmarkNode *BookmarksManager::startPage()
+{
+    if (!m_loaded)
+        load();
+
+    for (int i = m_bookmarkRootNode->children().count() - 1; i >= 0; --i) {
+        BookmarkNode *node = m_bookmarkRootNode->children().at(i);
+        if (node->title == tr(BOOKMARKSTART))
             return node;
     }
     Q_ASSERT(false);
@@ -420,9 +447,12 @@ bool BookmarksModel::removeRows(int row, int count, const QModelIndex &parent)
     BookmarkNode *bookmarkNode = node(parent);
     for (int i = row + count - 1; i >= row; --i) {
         BookmarkNode *node = bookmarkNode->children().at(i);
-        if (node == m_bookmarksManager->menu()
-            || node == m_bookmarksManager->toolbar())
-            continue;
+
+        bool isFolder = bookmarkNode == m_bookmarksManager->menu() ||
+                        bookmarkNode == m_bookmarksManager->toolbar() ||
+                        bookmarkNode == m_bookmarksManager->startPage();
+
+        if (isFolder) continue;
 
         m_bookmarksManager->removeBookmark(node);
     }
@@ -553,14 +583,20 @@ Qt::ItemFlags BookmarksModel::flags(const QModelIndex &index) const
 
     BookmarkNode *bookmarkNode = node(index);
 
-    if (bookmarkNode != m_bookmarksManager->menu()
-        && bookmarkNode != m_bookmarksManager->toolbar()) {
+    bool isFolder = bookmarkNode == m_bookmarksManager->menu() ||
+                    bookmarkNode == m_bookmarksManager->toolbar() ||
+                    bookmarkNode == m_bookmarksManager->startPage();
+
+    if ( ! isFolder)
+    {
         flags |= Qt::ItemIsDragEnabled;
         if (bookmarkNode->type() != BookmarkNode::Separator)
             flags |= Qt::ItemIsEditable;
     }
+
     if (hasChildren(index))
         flags |= Qt::ItemIsDropEnabled;
+
     return flags;
 }
 
@@ -726,6 +762,16 @@ AddBookmarkDialog::AddBookmarkDialog(const QString &url, const QString &title, c
     location->setCurrentIndex(idx.row());
     name->setText(title);
     urlLineEdit->setText(url);
+}
+
+void AddBookmarkDialog::setStartPageDefault()
+{
+    BookmarkNode *node = m_bookmarksManager->startPage();
+    BookmarksModel* bookmarksModel = static_cast<BookmarksModel*>(m_proxyModel->sourceModel());
+
+    QModelIndex idx = m_proxyModel->mapFromSource(bookmarksModel->index(node));
+    location->setCurrentIndex(idx.row());
+    location->view()->setCurrentIndex(idx);
 }
 
 void AddBookmarkDialog::accept()
