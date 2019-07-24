@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QPainter>
 
+#include "bookmarks.h"
 #include "xbel.h"
 
 StartPageWidget::StartPageWidget(QWidget *parent) :
@@ -132,7 +133,7 @@ void StartPageWidget::openItem()
 
 TileDelegate::TileDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
-
+    m_tileSize = 200;
 }
 
 void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -146,12 +147,18 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     //QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
     //style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget); // CE_ItemViewItem
 
+    int iconSize = m_tileSize / 10; // 20
 
     // /*
     if ( ! index.isValid()) return;
 
+    QRect rect = option.rect;
+    //painter->setBrush(option.backgroundBrush);
+    //painter->setPen(Qt::transparent);
+    //painter->drawRect(rect);
+
     bool mouseOver  = option.state.testFlag(QStyle::State_MouseOver);
-    bool isSelected = option.state.testFlag(QStyle::State_HasFocus);
+    //bool isSelected = option.state.testFlag(QStyle::State_HasFocus);
 
     QColor selectedRectColor(102, 102, 255);
 
@@ -159,9 +166,11 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     const QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
 
     painter->setBrush(Qt::black);
-    painter->setPen(Qt::gray);
+    painter->setPen(Qt::transparent);
 
-    QRect rect = option.rect;
+    int offset = rect.height() / 10;
+    QRect tileRect = QRect(rect.x() + offset, rect.y() + offset,
+                           rect.width() - offset, rect.height() - offset);
 
     if (mouseOver)
     {
@@ -172,9 +181,9 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->setBrush(Qt::white);
     }
 
-    painter->drawRect(rect);
+    painter->drawRect(tileRect);
 
-
+    /*
     if (isSelected)
     {
         QRect border(rect.x() + 1, rect.y() + 1, rect.width() - 2, rect.height() - 2);
@@ -183,11 +192,15 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->setBrush(Qt::transparent);
         painter->drawRect(border);
     }
+    */
 
     painter->setBrush(Qt::black);
     painter->setPen(Qt::gray);
 
-    drawIcon(painter, icon, QPoint(rect.x() + 2, rect.y() + 2));
+    QPoint pos(tileRect.x() + iconSize / 2,
+               tileRect.y() + iconSize / 2);
+
+    drawIcon(painter, icon, QSize(iconSize, iconSize), pos);
 
     //painter->drawText(rect.x() + 5, rect.y() + 50, user);
     //painter->drawText(rect.x() +  5, rect.y() +  70, address);
@@ -198,24 +211,37 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->setPen(Qt::white);
     }
 
-    painter->drawText(rect, Qt::AlignCenter, option.fontMetrics.elidedText(title, option.textElideMode, (rect.width() - 20)));
+    painter->drawText(tileRect, Qt::AlignCenter, option.fontMetrics.elidedText(title, option.textElideMode, (tileRect.width() - 20)));
 }
 
 QSize TileDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
-    size.setHeight(150);
-    size.setWidth(150);
+    size.setHeight(m_tileSize);
+    size.setWidth(m_tileSize);
     return size;
 }
 
-void TileDelegate::drawIcon(QPainter *painter, const QIcon &icon, QPoint pos) const
+void TileDelegate::drawIcon(QPainter *painter, const QIcon &icon, QSize iconSize, QPoint pos) const
 {
     bool isEnabled = true;
 
-    QPixmap pixmap = icon.pixmap(QSize(22, 22),
+    QPixmap pixmap = icon.pixmap(iconSize,
                                    isEnabled ? QIcon::Normal
                                                : QIcon::Disabled);
 
-    painter->drawPixmap(pos, pixmap);
+    QPixmap scaledPixmap = pixmap.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    painter->drawPixmap(pos, scaledPixmap);
+}
+
+void StartPageWidget::on_settingsButton_clicked()
+{
+    BookmarksDialog *dialog = new BookmarksDialog(this);
+    /*
+    connect(dialog, SIGNAL(openUrl(QUrl)),
+            this, SLOT(loadUrlInCurrentTab(QUrl)));
+            */
+
+    dialog->show();
 }

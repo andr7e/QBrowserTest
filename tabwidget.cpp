@@ -725,67 +725,6 @@ WebView *TabWidget::newTab(bool makeCurrent)
 
         BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
 
-        /*
-        QTreeView *treeView = new QTreeView(this);
-        treeView->setModel(bookmarksModel);
-        //treeView->setExpanded(bookmarksModel->index(0, 0), true);
-        treeView->expandAll();
-        treeView->setAlternatingRowColors(true);
-        QFontMetrics fm(font());
-        int header = fm.width(QLatin1Char('m')) * 40;
-        treeView->header()->resizeSection(0, header);
-        treeView->header()->setStretchLastSection(true);
-        treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-        addTab(treeView, tr(newTabTitle));
-
-        setCurrentWidget(treeView);
-        */
-
-        /*
-        QToolBar *toolBar = new QToolBar(this);
-        toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-
-        toolBar->setMinimumHeight(200);
-
-        for (int i = 0; i < bookmarksModel->rowCount(); i++)
-        {
-            QModelIndex parentIndex = bookmarksModel->index(i, 0);
-
-            BookmarkNode *node = bookmarksModel->node(parentIndex);
-
-            QList<BookmarkNode *> nodes = node->children();
-
-            foreach (BookmarkNode *node, nodes)
-            {
-                QModelIndex index = bookmarksModel->index(node);
-
-                QIcon icon = bookmarksModel->data(index, Qt::DecorationRole).value<QIcon>();
-                QString title = bookmarksModel->data(index).toString();
-                QString url = bookmarksModel->data(index, BookmarksModel::UrlStringRole).toString();
-
-                title = title.left(20);
-                int len = title.length();
-
-                qDebug() << "fff" << len << (20 - len)/2;
-
-                title = title.rightJustified((20 - len)/2 + len, '_');
-                title = title.leftJustified(20, '_');
-
-                QAction *action = new QAction(icon, title);
-                action->setToolTip(url);
-
-                toolBar->addAction(action);
-            }
-
-
-        }
-
-        addTab(toolBar, tr(newTabTitle));
-
-        setCurrentWidget(toolBar);
-        */
-
         StartPageWidget *startPageWidget = new StartPageWidget(this);
 
         startPageWidget->updateInfo(bookmarksModel);
@@ -806,6 +745,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
     //webView->setUrl(QUrl("newtab"));
     //QString html = HtmlTemplateManager::get("newtab");
 
+    /*
     if (m_virtMode)
     {
         QString html = HtmlTemplateManager::get("newtab");
@@ -815,6 +755,7 @@ WebView *TabWidget::newTab(bool makeCurrent)
 
         webView->setContent(html.toLatin1(), "text/html;charset=UTF-8"); //, QUrl());
     }
+    */
 
     /*
     int index = webViewIndex(webView);

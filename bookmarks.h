@@ -279,6 +279,7 @@ private slots:
     void customContextMenuRequested(const QPoint &pos);
     void open();
     void newFolder();
+    void removeBookmark();
 
 private:
     void expandNodes(BookmarkNode *node);

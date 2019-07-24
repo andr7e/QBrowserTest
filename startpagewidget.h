@@ -28,6 +28,9 @@ public slots:
     void onCustomContextMenuRequested(const QPoint &pos);
     void openItem();
 
+private slots:
+    void on_settingsButton_clicked();
+
 private:
     Ui::StartPageWidget *ui;
 
@@ -45,7 +48,10 @@ public:
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-    void drawIcon(QPainter *painter, const QIcon &icon, QPoint pos) const;
+    void drawIcon(QPainter *painter, const QIcon &icon, QSize iconSize, QPoint pos) const;
+
+private:
+    int m_tileSize;
 };
 
 #endif // STARTPAGEWIDGET_H

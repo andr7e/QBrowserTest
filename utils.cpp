@@ -7,7 +7,7 @@
 
 QString Utils::convertIconToBase64(const QIcon &icon)
 {
-    QImage image(icon.pixmap(20,20).toImage());
+    QImage image(icon.pixmap(24,24).toImage());
 
     QByteArray byteArray;
     QBuffer buffer(&byteArray);

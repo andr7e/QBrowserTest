@@ -796,7 +796,9 @@ BookmarksDialog::BookmarksDialog(QWidget *parent, BookmarksManager *manager)
     m_proxyModel = new TreeProxyModel(this);
     connect(search, SIGNAL(textChanged(QString)),
             m_proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(removeButton, SIGNAL(clicked()), tree, SLOT(removeOne()));
+    //connect(removeButton, SIGNAL(clicked()), tree, SLOT(removeOne()));
+    connect(removeButton, SIGNAL(clicked()), this, SLOT(removeBookmark()));
+
     m_proxyModel->setSourceModel(m_bookmarksModel);
     tree->setModel(m_proxyModel);
     tree->setDragDropMode(QAbstractItemView::InternalMove);
@@ -864,7 +866,8 @@ void BookmarksDialog::customContextMenuRequested(const QPoint &pos)
         menu.addAction(tr("Open"), this, SLOT(open()));
         menu.addSeparator();
     }
-    menu.addAction(tr("Delete"), tree, SLOT(removeOne()));
+    //menu.addAction(tr("Delete"), tree, SLOT(removeOne()));
+    menu.addAction(tr("Delete"), this, SLOT(removeBookmark()));
     menu.exec(QCursor::pos());
 }
 
@@ -889,6 +892,25 @@ void BookmarksDialog::newFolder()
     BookmarkNode *node = new BookmarkNode(BookmarkNode::Folder);
     node->title = tr("New Folder");
     m_bookmarksManager->addBookmark(parent, node, currentIndex.row() + 1);
+}
+
+void BookmarksDialog::removeBookmark()
+{
+    QModelIndex index = tree->currentIndex();
+
+    //qDebug() << index << index.data();
+
+    if ( ! index.isValid()) return;
+
+    QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
+
+    if ( ! sourceIndex.isValid()) return;
+
+    BookmarkNode *node = m_bookmarksModel->node(sourceIndex);
+
+    //qDebug() << node->url;
+
+    m_bookmarksManager->removeBookmark(node);
 }
 
 BookmarksToolBar::BookmarksToolBar(BookmarksModel *model, QWidget *parent)
