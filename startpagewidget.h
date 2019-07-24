@@ -51,7 +51,7 @@ public:
     void drawIcon(QPainter *painter, const QIcon &icon, QSize iconSize, QPoint pos) const;
 
 private:
-    int m_tileSize;
+    QSize m_tileSize;
 };
 
 #endif // STARTPAGEWIDGET_H

@@ -133,7 +133,8 @@ void StartPageWidget::openItem()
 
 TileDelegate::TileDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
-    m_tileSize = 200;
+    m_tileSize.setWidth(240);
+    m_tileSize.setHeight(200);
 }
 
 void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -143,38 +144,47 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     //QStyledItemDelegate::paint(painter, option, index);
 
-    // draw correct background
+    // Widget itself
     //QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
     //style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget); // CE_ItemViewItem
 
-    int iconSize = m_tileSize / 10; // 20
+    int iconSize = m_tileSize.height() / 10; // 20
 
-    // /*
     if ( ! index.isValid()) return;
 
     QRect rect = option.rect;
-    //painter->setBrush(option.backgroundBrush);
-    //painter->setPen(Qt::transparent);
+
+    // Test
+    //painter->setBrush(Qt::black);
     //painter->drawRect(rect);
 
     bool mouseOver  = option.state.testFlag(QStyle::State_MouseOver);
     //bool isSelected = option.state.testFlag(QStyle::State_HasFocus);
 
-    QColor selectedRectColor(102, 102, 255);
+    QColor activeRectColor(102, 102, 255);
+    QColor nonActiveRectColor(153, 153, 255);
 
     const QString title = index.data().toString();
-    const QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
+    const QIcon icon    = index.data(Qt::DecorationRole).value<QIcon>();
+
+    // Background
 
     painter->setBrush(Qt::black);
     painter->setPen(Qt::transparent);
 
-    int offset = rect.height() / 10;
+    int offset = rect.height() / 20;
     QRect tileRect = QRect(rect.x() + offset, rect.y() + offset,
-                           rect.width() - offset, rect.height() - offset);
+                           rect.width() - offset * 2, rect.height() - offset * 2);
 
     if (mouseOver)
     {
-        painter->setBrush(selectedRectColor);
+        // painter->setBrush(activeRectColor);
+
+        QPen pen(activeRectColor);
+        pen.setWidth(offset / 2);
+
+        painter->setPen(pen);
+        painter->setBrush(Qt::white);
     }
     else
     {
@@ -183,27 +193,33 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     painter->drawRect(tileRect);
 
-    /*
-    if (isSelected)
-    {
-        QRect border(rect.x() + 1, rect.y() + 1, rect.width() - 2, rect.height() - 2);
+    // Icon
 
-        painter->setPen(Qt::black);
-        painter->setBrush(Qt::transparent);
-        painter->drawRect(border);
-    }
-    */
-
-    painter->setBrush(Qt::black);
-    painter->setPen(Qt::gray);
-
-    QPoint pos(tileRect.x() + iconSize / 2,
+    QPoint iconPos(tileRect.x() + iconSize / 2,
                tileRect.y() + iconSize / 2);
 
-    drawIcon(painter, icon, QSize(iconSize, iconSize), pos);
+    drawIcon(painter, icon, QSize(iconSize, iconSize), iconPos);
 
-    //painter->drawText(rect.x() + 5, rect.y() + 50, user);
-    //painter->drawText(rect.x() +  5, rect.y() +  70, address);
+    // Label rect
+
+    int labelOffset = tileRect.height() / 4;
+
+    QRect labelRect = QRect(tileRect.x(), tileRect.y() + 3 * labelOffset,
+                           tileRect.width(), labelOffset);
+
+    painter->setBrush(nonActiveRectColor);
+
+    if (mouseOver)
+    {
+        painter->setBrush(activeRectColor);
+    }
+
+    painter->drawRect(labelRect);
+
+    // Label text
+
+    painter->setBrush(Qt::black);
+    painter->setPen(QColor(240,240,240));
 
     if (mouseOver)
     {
@@ -211,15 +227,21 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->setPen(Qt::white);
     }
 
-    painter->drawText(tileRect, Qt::AlignCenter, option.fontMetrics.elidedText(title, option.textElideMode, (tileRect.width() - 20)));
+    QString text = option.fontMetrics.elidedText(title, option.textElideMode, (labelRect.width() - offset)); // 20
+
+    painter->drawText(labelRect, Qt::AlignCenter, text);
 }
 
 QSize TileDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QSize size = QStyledItemDelegate::sizeHint(option, index);
-    size.setHeight(m_tileSize);
-    size.setWidth(m_tileSize);
-    return size;
+    Q_UNUSED(option)
+    Q_UNUSED(index)
+
+    //QSize size = QStyledItemDelegate::sizeHint(option, index);
+    //size.setHeight(m_tileSize);
+    //size.setWidth(m_tileSize);
+
+    return m_tileSize;
 }
 
 void TileDelegate::drawIcon(QPainter *painter, const QIcon &icon, QSize iconSize, QPoint pos) const
