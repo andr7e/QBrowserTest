@@ -79,6 +79,7 @@
 #include "bookmarks.h"
 #include "xbel.h"
 #include "startpagewidget.h"
+#include "utils.h"
 
 TabBar::TabBar(QWidget *parent)
     : QTabBar(parent)
@@ -723,11 +724,9 @@ WebView *TabWidget::newTab(bool makeCurrent)
     {
         // Start Page
 
-        BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
-
         StartPageWidget *startPageWidget = new StartPageWidget(this);
 
-        startPageWidget->updateInfo(bookmarksModel);
+        startPageWidget->updateInfo();
 
         connect(startPageWidget, SIGNAL(openUrl(QUrl)), SLOT(loadUrlInCurrentTab2(QUrl)));
 
@@ -1000,6 +999,9 @@ void TabWidget::webViewIconChanged(const QIcon &icon)
         setTabLoading(index, false);
         webView->m_loadingIcon = false;
         setTabIcon(index, icon);
+
+        QUrl url = webView->url();
+        checkAndUpdateIconForBookmark(url);
     }
 }
 
@@ -1036,6 +1038,41 @@ void TabWidget::webPageMutedOrAudibleChanged() {
         else if (audible) title = tr("(audible) ") + title;
 
         setTabTitle(index, title);
+    }
+}
+
+void TabWidget::checkAndUpdateIconForBookmark(const QUrl &url)
+{
+    BookmarksManager *bookmarksManager = BrowserApplication::bookmarksManager();
+
+    BookmarkNode *startPageNode = bookmarksManager->startPage();
+
+    if ( ! startPageNode) return;
+
+    QList<BookmarkNode *> nodes = startPageNode->children();
+
+    foreach (BookmarkNode *node, nodes)
+    {
+        if ( ! node->iconBase64.isEmpty()) continue;
+
+        qDebug() << "checkAndUpdateIconForBookmark" << QUrl(node->url).host() << url.host();
+
+        QIcon icon = tabIcon(currentIndex());
+
+        if (QUrl(node->url).host() == url.host())
+        {
+            qDebug() << "equal url";
+
+            QString iconBase64 = Utils::convertIconToBase64(icon);
+
+            qDebug() << iconBase64;
+
+            ChangeIconBookmarkCommand *command = new ChangeIconBookmarkCommand(bookmarksManager, node, iconBase64, icon);
+            QUndoStack commands;
+            commands.push(command);
+
+            break;
+        }
     }
 }
 

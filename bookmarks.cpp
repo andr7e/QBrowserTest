@@ -1068,3 +1068,33 @@ void BookmarksToolBar::activated(const QModelIndex &index)
 {
     emit openUrl(index.data(BookmarksModel::UrlRole).toUrl());
 }
+
+ChangeIconBookmarkCommand::ChangeIconBookmarkCommand(BookmarksManager *m_bookmarkManagaer,
+                                                     BookmarkNode *node, const QString &iconBase64, const QIcon &icon)
+    : QUndoCommand()
+    , m_bookmarkManagaer(m_bookmarkManagaer)
+    , m_node(node)
+    , m_iconBase64(iconBase64)
+    , m_icon(icon)
+{
+
+        m_oldIconBase64 = m_node->iconBase64;
+        m_oldIcon       = m_node->icon;
+        setText(BookmarksManager::tr("Icon Change"));
+}
+
+void ChangeIconBookmarkCommand::undo()
+{
+    m_node->iconBase64 = m_oldIconBase64;
+    m_node->icon       = m_oldIcon;
+
+    emit m_bookmarkManagaer->entryChanged(m_node);
+}
+
+void ChangeIconBookmarkCommand::redo()
+{
+    m_node->iconBase64 = m_iconBase64;
+    m_node->icon       = m_icon;
+
+    emit m_bookmarkManagaer->entryChanged(m_node);
+}

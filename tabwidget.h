@@ -261,6 +261,8 @@ private slots:
     void handleTabBarDoubleClicked(int index);
     void webPageMutedOrAudibleChanged();
 
+    void checkAndUpdateIconForBookmark(const QUrl &url);
+
 private:
     int calcTabWidth() const;
     int calcTabHeight() const;

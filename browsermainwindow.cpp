@@ -523,7 +523,7 @@ void BrowserMainWindow::setupMenu()
     // Bookmarks
     BookmarksMenu *bookmarksMenu = new BookmarksMenu(this);
     connect(bookmarksMenu, SIGNAL(openUrl(QUrl)),
-            m_tabWidget, SLOT(loadUrlInCurrentTab(QUrl)));
+            m_tabWidget, SLOT(loadUrlInCurrentTab2(QUrl)));
     connect(bookmarksMenu, SIGNAL(hovered(QString)),
             this, SLOT(slotUpdateStatusbar(QString)));
     bookmarksMenu->setTitle(tr("&Bookmarks"));

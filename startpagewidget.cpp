@@ -3,9 +3,12 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QMainWindow>
+#include <QMessageBox>
 
 #include "bookmarks.h"
 #include "xbel.h"
+#include "browserapplication.h"
 
 StartPageWidget::StartPageWidget(QWidget *parent) :
     QWidget(parent),
@@ -61,8 +64,10 @@ StartPageWidget::~StartPageWidget()
     delete ui;
 }
 
-void StartPageWidget::updateInfo(BookmarksModel *bookmarksModel)
+void StartPageWidget::updateInfo()
 {
+    BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
+
     m_model->setRowCount(0);
 
     int row = 0;
@@ -101,17 +106,20 @@ void StartPageWidget::updateInfo(BookmarksModel *bookmarksModel)
 
         // Virtual add tile
 
-        QIcon icon = QIcon(QLatin1String(":addbookmark.png"));
+        if (row == 0)
+        {
+            QIcon icon = QIcon(QLatin1String(":addbookmark.png"));
 
-        m_model->setItem(row, 0, new QStandardItem(icon, tr("New Page")));
-        QModelIndex index0 = m_model->index(row, 0);
+            m_model->setItem(row, 0, new QStandardItem(icon, tr("New Page")));
+            QModelIndex index0 = m_model->index(row, 0);
 
-        m_model->setData(index0, tr("Add new page"), Qt::ToolTipRole);
-        m_model->setData(index0, 1, Roles::VirtualRole);
+            m_model->setData(index0, tr("Add new page"), Qt::ToolTipRole);
+            m_model->setData(index0, 1, Roles::VirtualRole);
 
-        row++;
+            row++;
 
-        m_model->setRowCount(row);
+            m_model->setRowCount(row);
+        }
     }
 }
 
@@ -119,16 +127,26 @@ void StartPageWidget::onCustomContextMenuRequested(const QPoint &pos)
 {
     qDebug() << "onCustomContextMenuRequested" << pos;
 
-    QModelIndex index = ui->listView->currentIndex();
+    QModelIndex index = ui->listView->indexAt(pos);
 
-    if ( ! index.isValid()) return;
+    if (index.isValid())
+    {
+        QMenu menu(this);
 
-    QMenu menu(this);
+        QAction *openAction = menu.addAction(tr("Open"));
+        connect (openAction, SIGNAL(triggered()), SLOT(openItem()));
 
-    QAction *openAction = menu.addAction(tr("Open"));
-    connect (openAction, SIGNAL(triggered()), SLOT(openItem()));
+        menu.exec (mapToGlobal(pos) );
+    }
+    else
+    {
+        QMenu menu(this);
 
-    menu.exec (mapToGlobal(pos) );
+        QAction *addAction = menu.addAction(tr("Add"));
+        connect (addAction, SIGNAL(triggered()), SLOT(addItem()));
+
+        menu.exec (mapToGlobal(pos) );
+    }
 }
 
 void StartPageWidget::openItem()
@@ -136,6 +154,95 @@ void StartPageWidget::openItem()
     QModelIndex index = ui->listView->currentIndex();
 
     openItem(index);
+}
+
+void StartPageWidget::addItem()
+{
+    /*
+    QString title = "New Page";
+    QString url   = "www.example.com";
+    QIcon icon;
+    AddBookmarkDialog dialog(url, title, icon);
+    dialog.setStartPageDefault();
+    dialog.exec();
+    */
+
+    BookmarksModel *bookmarksModel = BrowserApplication::bookmarksManager()->bookmarksModel();
+
+    m_chooseBookmarkWindow = new QMainWindow(this);
+    m_chooseBookmarkWindow->setWindowTitle(tr("Choose bookmark"));
+    m_chooseBookmarkWindow->setAttribute(Qt::WA_DeleteOnClose);
+
+    QTreeView *treeView = new QTreeView(m_chooseBookmarkWindow);
+    treeView->setModel(bookmarksModel);
+    //treeView->setExpanded(bookmarksModel->index(0, 0), true);
+    treeView->expandAll();
+    treeView->setAlternatingRowColors(true);
+    QFontMetrics fm(font());
+    int header = fm.width(QLatin1Char('m')) * 40;
+    treeView->header()->resizeSection(0, header);
+    treeView->header()->setStretchLastSection(true);
+    treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slotAddBookmark(QModelIndex)));
+    m_chooseBookmarkWindow->setCentralWidget(treeView);
+    m_chooseBookmarkWindow->resize(600,600);
+
+    m_chooseBookmarkWindow->show();
+}
+
+void StartPageWidget::slotAddBookmark(const QModelIndex &index)
+{
+    qDebug() << index;
+
+    if ( ! index.isValid()) return;
+
+    if (!index.parent().isValid())
+        return;
+
+
+    BookmarksManager *bookmarksManager = BrowserApplication::bookmarksManager();
+
+    BookmarksModel *bookmarksModel = bookmarksManager->bookmarksModel();
+
+    BookmarkNode *startPageNode = bookmarksManager->startPage();
+    BookmarkNode *node = bookmarksModel->node(index);
+
+    if (node->type() != BookmarkNode::Bookmark)
+    {
+        QMessageBox::warning(this, tr("Bookmarks"), tr("Choose general bookmark."));
+        return;
+    }
+
+    if (node->parent() == startPageNode)
+    {
+        QMessageBox::warning(this, tr("Bookmarks"), tr("Already added."));
+        return;
+    }
+
+    BookmarkNode *newNode = new BookmarkNode();
+    newNode->title       = node->title;
+    newNode->icon        = node->icon;
+    newNode->iconBase64  = node->iconBase64;
+    newNode->url         = node->url;
+    newNode->desc        = node->desc;
+    newNode->setType(BookmarkNode::Bookmark);
+
+    /*
+    QUrl url      = index.sibling(index.row(), 1).data(BookmarksModel::UrlRole).toUrl();
+    QIcon icon    = index.sibling(index.row(), 0).data(Qt::DecorationRole).value<QIcon>();
+    QIcon icon    = index.sibling(index.row(), 0).data(Qt::DecorationRole).value<QIcon>();
+    QString title = index.sibling(index.row(), 0).data().toString();
+
+    qDebug() << index << url << title;
+    */
+
+    int row = startPageNode->children().count();
+
+    InsertBookmarksCommand *command = new InsertBookmarksCommand(bookmarksManager, startPageNode, newNode, row);
+    QUndoStack m_commands;
+    m_commands.push(command);
+
+    m_chooseBookmarkWindow->close();
 }
 
 void StartPageWidget::openItem(const QModelIndex &index)
@@ -146,16 +253,10 @@ void StartPageWidget::openItem(const QModelIndex &index)
 
     if (virt)
     {
-        QString title = "New Page";
-        QString url   = "www.example.com";
-        QIcon icon;
-        AddBookmarkDialog dialog(url, title, icon);
-        dialog.setStartPageDefault();
-        dialog.exec();
+        addItem();
     }
     else
     {
-
         QString url = ui->listView->model()->data(index, Qt::ToolTipRole).toString();
 
         emit openUrl(url);

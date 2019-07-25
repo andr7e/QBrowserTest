@@ -55,6 +55,7 @@
 #include <QtCore/QAbstractItemModel>
 
 #include <QtWidgets/QUndoCommand>
+#include <QIcon>
 
 /*!
     Bookmark manager, owner of the bookmarks, loads, saves and basic tasks
@@ -152,6 +153,25 @@ private:
     QString m_oldValue;
     QString m_newValue;
     BookmarkNode *m_node;
+};
+
+class ChangeIconBookmarkCommand : public QUndoCommand
+{
+
+public:
+    ChangeIconBookmarkCommand(BookmarksManager *m_bookmarkManagaer, BookmarkNode *node,
+                              const QString &iconBase64, const QIcon &icon);
+    void undo();
+    void redo();
+
+private:
+    BookmarksManager *m_bookmarkManagaer;
+    BookmarkNode *m_node;
+    QString m_iconBase64;
+    QIcon m_icon;
+
+    QString m_oldIconBase64;
+    QIcon m_oldIcon;
 };
 
 /*!

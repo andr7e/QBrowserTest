@@ -25,7 +25,7 @@ public:
     explicit StartPageWidget(QWidget *parent = 0);
     ~StartPageWidget();
 
-    void updateInfo(BookmarksModel *bookmarksModel);
+    void updateInfo();
 
 signals:
     void openUrl(QUrl url);
@@ -33,6 +33,8 @@ signals:
 public slots:
     void onCustomContextMenuRequested(const QPoint &pos);
     void openItem();
+    void addItem();
+    void slotAddBookmark(const QModelIndex &index);
 
 private slots:
     void on_settingsButton_clicked();
@@ -44,6 +46,8 @@ private:
     Ui::StartPageWidget *ui;
 
     QStandardItemModel *m_model;
+
+    QMainWindow *m_chooseBookmarkWindow;
 };
 
 #include <QStyledItemDelegate>
