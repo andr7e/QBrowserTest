@@ -13,5 +13,9 @@
         <file>process-stop.png</file>
         <file>addbookmark.png</file>
         <file>bookmark-menu.png</file>
+        <file>search/duckduckgo.xml</file>
+        <file>search/google.xml</file>
+        <file>search/wikipedia.xml</file>
+        <file>search/yandex.xml</file>
     </qresource>
 </RCC>

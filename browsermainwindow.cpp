@@ -62,7 +62,7 @@
 #include "toolbarsearch.h"
 #include "ui_passworddialog.h"
 #include "webview.h"
-#include "searchengine.h"
+#include "searchenginemanager.h"
 #include "finddialog.h"
 
 #include <QtCore/QSettings>
@@ -140,6 +140,7 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     connect(m_bookmarksToolbar->toggleViewAction(), SIGNAL(toggled(bool)),
             this, SLOT(updateBookmarksToolbarActionText(bool)));
 
+    SearchEngineManager::instance()->load();
 
     connect(m_findDialog, SIGNAL(textChanged(QString)), SLOT(slotEditFind(QString)));
     connect(m_findDialog, SIGNAL(findClosed()),         SLOT(slotEndFind()));
@@ -1125,7 +1126,7 @@ void BrowserMainWindow::loadPage(const QString &page)
     //qDebug() << url.isValid();
 
     if ( ! url.isValid())
-        url = SearchEngine::getUrl(page);
+        url = SearchEngineManager::getUrl(page);
 
     loadUrl(url);
 }

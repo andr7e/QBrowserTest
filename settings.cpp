@@ -57,6 +57,8 @@
 #endif
 #include "history.h"
 #include "webview.h"
+#include "searchenginemanager.h"
+#include "settingsmanager.h"
 
 #include <QtCore/QLocale>
 #include <QtCore/QSettings>
@@ -199,6 +201,26 @@ void SettingsDialog::loadFromSettings()
     proxyUserName->setText(settings.value(QLatin1String("userName")).toString());
     proxyPassword->setText(settings.value(QLatin1String("password")).toString());
     settings.endGroup();
+
+    // Search
+
+    QStringList keys = SearchEngineManager::instance()->getList();
+
+    qSort(keys);
+
+    QString searchKey = SettingsManager::getDefaultSearch();
+
+    QString text;
+    foreach (QString key, keys)
+    {
+        SearchEngine engine = SearchEngineManager::instance()->get(key);
+        searchComboBox->addItem(engine.icon, engine.name, key);
+
+        if (key == searchKey)
+            text = engine.name;
+    }
+
+    searchComboBox->setCurrentText(text);
 }
 
 void SettingsDialog::saveToSettings()
@@ -263,6 +285,21 @@ void SettingsDialog::saveToSettings()
     settings.setValue(QLatin1String("userName"), proxyUserName->text());
     settings.setValue(QLatin1String("password"), proxyPassword->text());
     settings.endGroup();
+
+    // Search
+
+    QString searchKey = searchComboBox->currentData().toString(); // currentData
+
+    if ( ! searchKey.isEmpty())
+    {
+        //qDebug() << "save searchKey" << searchKey;
+
+        settings.beginGroup(QLatin1String("search"));
+        settings.setValue(QLatin1String("default"), searchKey);
+        settings.endGroup();
+    }
+
+    //
 
     BrowserApplication::instance()->loadSettings();
 #if defined(QWEBENGINEPAGE_SETNETWORKACCESSMANAGER)

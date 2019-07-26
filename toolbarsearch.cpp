@@ -62,7 +62,7 @@
 
 #include <QWebEngineSettings>
 
-#include "searchengine.h"
+#include "searchenginemanager.h"
 
 /*
     ToolbarSearch is a very basic search widget that also contains a small history.
@@ -126,7 +126,7 @@ void ToolbarSearch::searchNow()
         m_autosaver->changeOccurred();
     }
 
-    QUrl url = SearchEngine::getUrl(searchText);
+    QUrl url = SearchEngineManager::getUrl(searchText);
 
     emit search(url);
 }

@@ -30,3 +30,8 @@ QIcon Utils::convertBase64ToIcon(const QString &iconBase64)
 
     return QIcon(pixmap);
 }
+
+QPixmap Utils::loadPixmapFromDataUri(const QString &dataBase64)
+{
+    return QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(dataBase64.toUtf8())));
+}

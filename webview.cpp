@@ -57,7 +57,7 @@
 #include "ui_proxy.h"
 #include "tabwidget.h"
 #include "webview.h"
-#include "searchengine.h"
+#include "searchenginemanager.h"
 #include "htmltemplatemanager.h"
 
 #include <QtGui/QClipboard>
@@ -494,7 +494,7 @@ void WebView::searchSelectedText()
 {
     //qDebug() << "searchSelectedText";
 
-    QUrl url = SearchEngine::getUrl(m_searchText);
+    QUrl url = SearchEngineManager::getUrl(m_searchText);
 
     webPage()->mainWindow()->tabWidget()->newTab()->loadUrl(url);
 }

@@ -45,11 +45,12 @@ HEADERS += \
     urllineedit.h \
     webview.h \
     xbel.h \
-    searchengine.h \
     finddialog.h \
     htmltemplatemanager.h \
     utils.h \
-    startpagewidget.h
+    startpagewidget.h \
+    settingsmanager.h \
+    searchenginemanager.h
 
 SOURCES += \
     autosaver.cpp \
@@ -75,11 +76,12 @@ SOURCES += \
     webview.cpp \
     xbel.cpp \
     main.cpp \
-    searchengine.cpp \
     finddialog.cpp \
     htmltemplatemanager.cpp \
     utils.cpp \
-    startpagewidget.cpp
+    startpagewidget.cpp \
+    settingsmanager.cpp \
+    searchenginemanager.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 
