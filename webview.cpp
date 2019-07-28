@@ -342,6 +342,8 @@ WebView::WebView(QWidget* parent)
         qInfo() << "Render process exited with code" << statusCode << status;
         QTimer::singleShot(0, [this] { reload(); });
     });
+
+    installEventFilter(this);
 }
 
 void WebView::setPage(WebPage *_page)
@@ -499,6 +501,8 @@ void WebView::searchSelectedText()
     webPage()->mainWindow()->tabWidget()->newTab()->loadUrl(url);
 }
 
+// Events not recieve, need m_activeInputWidget
+
 void WebView::mousePressEvent(QMouseEvent *event)
 {
     m_page->m_pressedButtons = event->buttons();
@@ -515,6 +519,64 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
             setUrl(url);
         }
     }
+}
+
+void WebView::findActiveInputWidget(QObject *obj, QEvent *event)
+{
+    if (obj == this && event->type() == QEvent::ChildAdded) {
+#if QTWEBENGINEWIDGETS_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        QPointer<QWidget> child = qobject_cast<QWidget*>(static_cast<QChildEvent*>(event)->child());
+        QTimer::singleShot(0, this, [=]() {
+            if (child && child->inherits("QtWebEngineCore::RenderWidgetHostViewQtDelegateWidget")) {
+                m_activeInputWidget = child;
+#else
+        QTimer::singleShot(0, this, [this]() {
+            if (focusProxy() && m_activeInputWidget != focusProxy()) {
+                m_activeInputWidget = focusProxy();
+#endif
+                m_activeInputWidget->installEventFilter(this);
+            }
+        });
+    }
+}
+
+bool WebView::eventFilter(QObject *obj, QEvent *event)
+{
+    // Hack to find widget that receives input events
+    // based on https://github.com/KDE/falkon/blob/a154ef54806cf4a4989d069502fec4100c8e09ca/src/lib/webengine/webview.cpp#L1270
+
+    findActiveInputWidget(obj, event);
+
+    if (obj == m_activeInputWidget)
+    {
+        switch (event->type())
+        {
+            case QEvent::MouseButtonPress:
+            {
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                int button = mouseEvent->button();
+
+                if (button == Qt::BackButton)
+                {
+                    //qDebug() << "Qt::BackButton";
+                    back();
+                }
+                else if (button == Qt::ForwardButton)
+                {
+                    //qDebug() << "Qt::ForwardButton";
+                    forward();
+                }
+            }
+            default:
+            {
+                //
+            }
+        }
+    }
+
+    //const bool res = QWebEngineView::eventFilter(obj, event);
+
+    return false;
 }
 
 void WebView::setStatusBarText(const QString &string)

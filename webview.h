@@ -53,6 +53,7 @@
 
 #include <QIcon>
 #include <QWebEngineView>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QAuthenticator;
@@ -110,6 +111,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
     void wheelEvent(QWheelEvent *event);
+    bool eventFilter(QObject* obj, QEvent* event);
 
 private slots:
     void setProgress(int progress);
@@ -119,6 +121,9 @@ private slots:
     void onIconChanged(const QIcon &icon);
 
     void searchSelectedText();
+
+private:
+    void findActiveInputWidget(QObject *obj, QEvent *event);
 
 private:
     QString m_statusBarText;
@@ -132,6 +137,8 @@ public:
     bool m_virtTab;
     bool m_newTab;
     bool m_loadingIcon;
+
+    QPointer<QWidget> m_activeInputWidget;
 };
 
 #endif
