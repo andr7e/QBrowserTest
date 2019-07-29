@@ -131,7 +131,7 @@ private slots:
     void slotViewStatusbar();
     void slotViewFullScreen(bool enable);
     void slotOpenBookmark(const QModelIndex &index);
-
+    void slotViewPageSource();
     void slotWebSearch();
     void slotToggleInspector(bool enable);
     void slotAboutApplication();

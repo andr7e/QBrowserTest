@@ -460,7 +460,7 @@ void BrowserMainWindow::setupMenu()
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     m_tabWidget->addWebAction(m_pageSource, QWebEnginePage::ViewSource);
 #else
-    //m_tabWidget->addWebAction(m_pageSource, QWebEnginePage::OpenLinkInNewBackgroundTab);
+    connect(m_pageSource, SIGNAL(triggered(bool)), this, SLOT(slotViewPageSource()));
 #endif
 
     QAction *a = viewMenu->addAction(tr("&Full Screen"), this, SLOT(slotViewFullScreen(bool)),  Qt::Key_F11);
@@ -1080,6 +1080,23 @@ void BrowserMainWindow::slotHome()
     settings.beginGroup(QLatin1String("MainWindow"));
     QString home = settings.value(QLatin1String("home"), QLatin1String(defaultHome)).toString();
     loadPage(home);
+}
+
+void BrowserMainWindow::slotViewPageSource()
+{
+    if (!currentTab())
+        return;
+
+    QPlainTextEdit *view = new QPlainTextEdit;
+    view->setWindowTitle(tr("Page Source of %1").arg(currentTab()->title()));
+    view->setMinimumWidth(800);
+    view->setMinimumHeight(600);
+    view->setAttribute(Qt::WA_DeleteOnClose);
+    view->show();
+
+    currentTab()->page()->toHtml(invoke(view, &QPlainTextEdit::setPlainText));
+
+    //m_tabWidget->newTab()->setHtml(html);
 }
 
 void BrowserMainWindow::slotWebSearch()
