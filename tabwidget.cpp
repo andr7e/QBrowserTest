@@ -81,6 +81,8 @@
 #include "startpagewidget.h"
 #include "utils.h"
 
+//#define USE_MAKE_ICON_FOR_LOADING
+
 TabBar::TabBar(QWidget *parent)
     : QTabBar(parent)
 {
@@ -193,6 +195,10 @@ void TabBar::mousePressEvent(QMouseEvent *event)
 
         // To prevent bug with animation
         // Maybe more good solution with move animation
+
+        // With USE_MAKE_ICON_FOR_LOADING
+        // problem when tab swapped, need change state
+
         m_loadingHash.clear();
     }
 
@@ -288,16 +294,32 @@ void TabBar::paintEvent(QPaintEvent *event)
 
         if (loading)
         {
+#ifndef USE_MAKE_ICON_FOR_LOADING
             QRect rect = tab.rect;
 
             //painter.setBrush(Qt::red);
             //painter.drawEllipse(rect);
 
-            QSize iconSize(tab.iconSize); //  QSize(20,20
+            QSize iconSize(tab.iconSize); //  QSize(20,20)
             //QRect iconRect = QRect(0, 0, iconSize.width(), iconSize.height());
 
             spinnerAnimation->paint(&painter, rect, iconSize); //QRect(0,0,30,30));
             //painter.restore();
+
+#else
+            QSize iconSize(tab.iconSize);
+
+            QImage image(iconSize, QImage::Format_ARGB32);
+            image.fill(Qt::transparent);
+            QPainter pp(&image);
+
+            QRect myRect(0, 0, iconSize.width(), iconSize.height());
+            spinnerAnimation->paint(&pp, myRect, iconSize);
+
+            QPixmap pixmap = QPixmap::fromImage(image);
+            setTabIcon(i, QIcon(pixmap));
+#endif
+
         }
         else
         {
