@@ -284,6 +284,9 @@ UrlLineEdit::UrlLineEdit(QWidget *parent)
     m_iconLabel->resize(16, 16);
     setLeftWidget(m_iconLabel);
     m_defaultBaseColor = palette().color(QPalette::Base);
+
+    connect(m_lineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(recolorText()));
 }
 
 void UrlLineEdit::setWebView(WebView *webView)
@@ -453,7 +456,7 @@ void UrlLineEdit::recolorText()
 
     bool https = m_webView && m_webView->url().scheme() == QLatin1String("https");
 
-    if (https)
+    if (https && text.startsWith("https"))
     {
         //qDebug() << "https";
 
