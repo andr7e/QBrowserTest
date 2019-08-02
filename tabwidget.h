@@ -91,6 +91,8 @@ public:
     void setTabLoading(int index, bool loading);
     void clearLoadingState(int index);
 
+    QSize tabSizeHint(int index) const;
+
 protected:
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);

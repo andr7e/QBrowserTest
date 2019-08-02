@@ -354,6 +354,40 @@ void TabBar::clearLoadingState(int index)
     m_loadingHash.remove(index);
 }
 
+QSize TabBar::tabSizeHint(int index) const
+{
+    int height    = QTabBar::tabSizeHint(index).height();
+
+    int minTabWidth = height * 4;
+    int maxTabWidth = height * 7;
+
+    int num = count();
+    int widgetWidth = width();
+    int calcWidth = 0;
+
+    for (int i = 0; i < num; i++)
+        calcWidth += tabRect(i).width();
+
+    //CDEBUG << calcWidth << widgetWidth;
+
+    if (num > 1) // calcWidth > widgetWidth - height
+    {
+        int height = tabRect(index).height();
+
+        int tabWidth = qRound((1.0 * widgetWidth - height)  / num); // minus button+ and tabs move
+
+        //CDEBUG << tabWidth << minTabWidth;
+
+       if (tabWidth > maxTabWidth) tabWidth = maxTabWidth;
+       else
+            if (tabWidth < minTabWidth) tabWidth = minTabWidth;
+
+        return QSize(tabWidth, height);
+    }
+
+    return QTabBar::tabSizeHint(index);
+}
+
 TabWidget::TabWidget(QWidget *parent)
     : QTabWidget(parent)
     , m_recentlyClosedTabsAction(0)
@@ -446,7 +480,7 @@ TabWidget::~TabWidget()
         delete m_fullScreenView;
 }
 
-#define MAX_TITLE_LEN 30
+#define MAX_TITLE_LEN 20
 
 void TabWidget::setTabTitle(int index, const QString &title)
 {
