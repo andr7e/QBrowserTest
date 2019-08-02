@@ -456,11 +456,10 @@ void WebView::loadUrl(const QUrl &url)
     {
         m_virtTab = true;
 
-        QString html = HtmlTemplateManager::get(QLatin1String("home"));
+        //QString html = HtmlTemplateManager::get(QLatin1String("home"));
+        //setHtml(html, url);
 
-        setHtml(html, url);
-
-        //load(QUrl("file:home.html")); not working
+        load(QUrl("qrc:///home.html"));
     }
     else
     {
