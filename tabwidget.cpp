@@ -1106,11 +1106,20 @@ void TabWidget::webViewUrlChanged(const QUrl &url)
 
     int index = webViewIndex(webView);
     if (-1 != index) {
+
+        QString text = url.toString();
+        if (text.startsWith("qrc"))
+        {
+            emit tabsChanged();
+            return;
+        }
+
         m_tabBar->setTabData(index, url);
         HistoryManager *manager = BrowserApplication::historyManager();
         if (url.isValid())
             manager->addHistoryEntry(url.toString());
     }
+
     emit tabsChanged();
 }
 
@@ -1231,6 +1240,8 @@ QByteArray TabWidget::saveState() const
         if (WebView *tab = qobject_cast<WebView*>(widget(i))) {
 
             QString url = tab->url().toString();
+
+            if (url.startsWith("qrc")) url = "about.home";
 
             if ( ! url.isEmpty() && ! url.contains("about:blank")) tabs.append(url);
         } else {

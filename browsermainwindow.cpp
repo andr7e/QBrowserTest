@@ -87,6 +87,8 @@
 #include <QSplitter>
 #include <QDockWidget>
 
+#include "utils.h"
+
 #define BROWSER_NAME "E7 Browser"
 
 #define USE_SPLITTER_BETWEEN_LINE
@@ -140,7 +142,17 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     connect(m_bookmarksToolbar->toggleViewAction(), SIGNAL(toggled(bool)),
             this, SLOT(updateBookmarksToolbarActionText(bool)));
 
+    //
+
     SearchEngineManager::instance()->load();
+
+    QString key = SearchEngineManager::getDefaultName();
+    SearchEngine searchEngine = SearchEngineManager::instance()->get(key);
+    m_searchSwitchAction->setIcon(searchEngine.icon);
+    m_toolbarSearch->updateSearchName(searchEngine.name);
+    m_toolbarSearch->update();
+
+    //
 
     connect(m_findDialog, SIGNAL(textChanged(QString)), SLOT(slotEditFind(QString)));
     connect(m_findDialog, SIGNAL(findClosed()),         SLOT(slotEndFind()));
@@ -618,6 +630,9 @@ void BrowserMainWindow::setupToolBar()
     connect(m_bookmarkMenuToolBar, SIGNAL(triggered()), this, SLOT(slotShowBookmarksPanel()));
     m_bookmarkMenuToolBar->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
 
+    m_searchSwitchAction = new QAction(tr("Switch current search.."), this);
+    connect(m_searchSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchSearch()));
+
     //
 
 #ifndef USE_SPLITTER_BETWEEN_LINE
@@ -645,12 +660,14 @@ void BrowserMainWindow::setupToolBar()
     QToolBar *toolBar = new QToolBar(this);
     toolBar->addAction(m_addBookmarkToolBar);
     toolBar->addAction(m_bookmarkMenuToolBar);
+    toolBar->addSeparator();
+    toolBar->addAction(m_searchSwitchAction);
 
     QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
     leftSideLayout->setContentsMargins(0,0,0,0);
 
     QWidget *leftSideWidget = new QWidget(this);
-    leftSideLayout->addWidget(m_tabWidget->lineEditStack());
+    leftSideLayout->addWidget(m_tabWidget->lineEditStack(), 3);
     leftSideLayout->addWidget(m_chaseWidget);
     leftSideLayout->addWidget(toolBar);
 
@@ -744,6 +761,53 @@ void BrowserMainWindow::updateToolbarActionText(bool visible)
 void BrowserMainWindow::updateBookmarksToolbarActionText(bool visible)
 {
     m_viewBookmarkBar->setText(!visible ? tr("Show Bookmarks bar") : tr("Hide Bookmarks bar"));
+}
+
+void BrowserMainWindow::slotSwitchSearch()
+{
+    QMenu *menu = new QMenu(this);
+
+    // Search
+
+    QStringList keys = SearchEngineManager::instance()->getList();
+
+    qSort(keys);
+
+    foreach (QString key, keys)
+    {
+        SearchEngine engine = SearchEngineManager::instance()->get(key);
+        menu->addAction(engine.icon, engine.name)->setData(key);
+    }
+
+    menu->addSeparator();
+    menu->addAction(tr("Open search settings..."))->setData("settings");
+
+    connect(menu, SIGNAL(triggered(QAction*)), SLOT(slotCurrentSearchChanged(QAction*)));
+
+    menu->exec(QCursor::pos());
+}
+
+void BrowserMainWindow::slotCurrentSearchChanged(QAction *action)
+{
+    QString key = action->data().toString();
+    CDEBUG << key;
+
+    if (key == "settings")
+    {
+        SettingsDialog *s = new SettingsDialog(this);
+        s->setTabIndex(SettingsDialog::SEARCH);
+        s->show();
+    }
+    else
+    {
+        SearchEngineManager::instance()->setCurrentName(key);
+
+        SearchEngine searchEngine = SearchEngineManager::instance()->get(key);
+
+        m_searchSwitchAction->setIcon(searchEngine.icon);
+        m_toolbarSearch->updateSearchName(searchEngine.name);
+        m_toolbarSearch->update();
+    }
 }
 
 void BrowserMainWindow::slotViewStatusbar()

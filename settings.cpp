@@ -314,6 +314,11 @@ void SettingsDialog::accept()
     QDialog::accept();
 }
 
+void SettingsDialog::setTabIndex(int index)
+{
+    tabWidget->setCurrentIndex(index);
+}
+
 void SettingsDialog::showCookies()
 {
 #if defined(QWEBENGINEPAGE_SETNETWORKACCESSMANAGER)

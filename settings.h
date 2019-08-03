@@ -59,8 +59,16 @@ class SettingsDialog : public QDialog, public Ui_Settings
     Q_OBJECT
 
 public:
+
+    enum Tabs
+    {
+        SEARCH = 4
+    };
+
     SettingsDialog(QWidget *parent = 0);
     void accept();
+
+    void setTabIndex(int index);
 
 private slots:
     void loadDefaults();

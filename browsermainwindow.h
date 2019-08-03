@@ -152,6 +152,9 @@ private slots:
     void updateToolbarActionText(bool visible);
     void updateBookmarksToolbarActionText(bool visible);
 
+    void slotSwitchSearch();
+    void slotCurrentSearchChanged(QAction *action);
+
 private:
     void loadDefaultState();
     void setupMenu();
@@ -184,6 +187,7 @@ private:
 
     QAction *m_addBookmarkToolBar;
     QAction *m_bookmarkMenuToolBar;
+    QAction *m_searchSwitchAction;
 
     QPrinter *m_currentPrinter;
 
