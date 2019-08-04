@@ -148,7 +148,8 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
 
     QString key = SearchEngineManager::getDefaultName();
     SearchEngine searchEngine = SearchEngineManager::instance()->get(key);
-    m_searchSwitchAction->setIcon(searchEngine.icon);
+    //m_searchSwitchAction->setIcon(searchEngine.icon);
+    m_searchEngineToolButton->setIcon(searchEngine.icon);
     m_toolbarSearch->updateSearchName(searchEngine.name);
     m_toolbarSearch->update();
 
@@ -630,8 +631,8 @@ void BrowserMainWindow::setupToolBar()
     connect(m_bookmarkMenuToolBar, SIGNAL(triggered()), this, SLOT(slotShowBookmarksPanel()));
     m_bookmarkMenuToolBar->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
 
-    m_searchSwitchAction = new QAction(tr("Switch current search.."), this);
-    connect(m_searchSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchSearch()));
+    //m_searchSwitchAction = new QAction(tr("Switch current search..."), this);
+    //connect(m_searchSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchSearch()));
 
     //
 
@@ -646,12 +647,16 @@ void BrowserMainWindow::setupToolBar()
 #endif
 
     m_toolbarSearch = new ToolbarSearch(m_navigationBar);
+    connect(m_toolbarSearch, SIGNAL(search(QUrl)), SLOT(loadUrl(QUrl)));
+
+    m_searchEngineToolButton = new QToolButton(this);
+    m_searchEngineToolButton->setToolTip(tr("Switch current search..."));
+    connect(m_searchEngineToolButton, SIGNAL(clicked(bool)), this, SLOT(slotSwitchSearch()));
 
 #ifndef USE_SPLITTER_BETWEEN_LINE
     m_navigationBar->addAction(m_addBookmarkToolBar);
     m_navigationBar->addWidget(m_toolbarSearch);
 #endif
-    connect(m_toolbarSearch, SIGNAL(search(QUrl)), SLOT(loadUrl(QUrl)));
 
     //-----------
 
@@ -660,8 +665,8 @@ void BrowserMainWindow::setupToolBar()
     QToolBar *toolBar = new QToolBar(this);
     toolBar->addAction(m_addBookmarkToolBar);
     toolBar->addAction(m_bookmarkMenuToolBar);
-    toolBar->addSeparator();
-    toolBar->addAction(m_searchSwitchAction);
+    //toolBar->addSeparator();
+    //toolBar->addAction(m_searchSwitchAction);
 
     QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
     leftSideLayout->setContentsMargins(0,0,0,0);
@@ -680,6 +685,7 @@ void BrowserMainWindow::setupToolBar()
 
     QWidget *rightSideWidget = new QWidget(this);
     rightSideLayout->addWidget(m_toolbarSearch);
+    rightSideLayout->addWidget(m_searchEngineToolButton);
     rightSideWidget->setLayout(rightSideLayout);
 
     //
@@ -687,6 +693,9 @@ void BrowserMainWindow::setupToolBar()
     QSplitter *splitter = new QSplitter(this);
     splitter->addWidget(leftSideWidget);
     splitter->addWidget(rightSideWidget);
+
+    splitter->setStretchFactor(0, 3);
+    splitter->setStretchFactor(1, 2);
 
     m_navigationBar->addWidget(splitter);
 #endif
@@ -804,7 +813,8 @@ void BrowserMainWindow::slotCurrentSearchChanged(QAction *action)
 
         SearchEngine searchEngine = SearchEngineManager::instance()->get(key);
 
-        m_searchSwitchAction->setIcon(searchEngine.icon);
+        //m_searchSwitchAction->setIcon(searchEngine.icon);
+        m_searchEngineToolButton->setIcon(searchEngine.icon);
         m_toolbarSearch->updateSearchName(searchEngine.name);
         m_toolbarSearch->update();
     }
