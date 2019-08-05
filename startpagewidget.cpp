@@ -400,5 +400,8 @@ void StartPageWidget::on_settingsButton_clicked()
             this, SLOT(loadUrlInCurrentTab(QUrl)));
             */
 
-    dialog->show();
+    if (dialog->exec() == QDialog::Accepted)
+    {
+         updateInfo();
+    }
 }
