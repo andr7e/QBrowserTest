@@ -59,6 +59,7 @@ QT_BEGIN_NAMESPACE
 class QPrinter;
 class QWebEnginePage;
 class QProgressBar;
+class QToolButton;
 QT_END_NAMESPACE
 
 class AutoSaver;
@@ -152,6 +153,9 @@ private slots:
     void updateToolbarActionText(bool visible);
     void updateBookmarksToolbarActionText(bool visible);
 
+    void slotSwitchSearch();
+    void slotCurrentSearchChanged(QAction *action);
+
 private:
     void loadDefaultState();
     void setupMenu();
@@ -162,6 +166,7 @@ private:
 private:
     QToolBar *m_navigationBar;
     ToolbarSearch *m_toolbarSearch;
+    QToolButton *m_searchEngineToolButton;
     BookmarksToolBar *m_bookmarksToolbar;
     ChaseWidget *m_chaseWidget;
     TabWidget *m_tabWidget;
@@ -184,6 +189,7 @@ private:
 
     QAction *m_addBookmarkToolBar;
     QAction *m_bookmarkMenuToolBar;
+    //QAction *m_searchSwitchAction;
 
     QPrinter *m_currentPrinter;
 

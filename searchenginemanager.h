@@ -31,12 +31,17 @@ public:
 
     static QString getDefaultName();
 
+    QString getCurrentName() const;
+    void setCurrentName(const QString &name);
+
     void load();
     void loadEngine(const QString &filePath);
 
 private:
     static SearchEngineManager *s_instance;
     QHash<QString,SearchEngine> m_engines;
+
+    QString m_currentSearch;
 };
 
 QDebug operator<<(QDebug debug, const SearchEngine &searchEngine);

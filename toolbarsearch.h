@@ -75,6 +75,7 @@ public:
 public slots:
     void clear();
     void searchNow();
+    void updateSearchName(const QString &name);
 
 private slots:
     void save();

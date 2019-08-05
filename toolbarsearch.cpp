@@ -83,7 +83,7 @@ ToolbarSearch::ToolbarSearch(QWidget *parent)
     lineEdit()->setCompleter(completer);
 
     connect(lineEdit(), SIGNAL(returnPressed()), SLOT(searchNow()));
-    setInactiveText(tr("Google"));
+
     load();
 }
 
@@ -129,6 +129,11 @@ void ToolbarSearch::searchNow()
     QUrl url = SearchEngineManager::getUrl(searchText);
 
     emit search(url);
+}
+
+void ToolbarSearch::updateSearchName(const QString &name)
+{
+    setInactiveText(name);
 }
 
 void ToolbarSearch::aboutToShowMenu()

@@ -17,9 +17,9 @@ SearchEngineManager::SearchEngineManager()
 
 QUrl SearchEngineManager::getUrl(const QString &searchText)
 {
-    QString name = SearchEngineManager::getDefaultName();
-
-    SearchEngine searchEngine = SearchEngineManager::instance()->get(name);
+    SearchEngineManager *manager = SearchEngineManager::instance();
+    QString key = manager->getCurrentName();
+    SearchEngine searchEngine = manager->get(key);
 
     //CDEBUG << searchEngine;
 
@@ -83,6 +83,18 @@ SearchEngine SearchEngineManager::get(const QString &name)
 QString SearchEngineManager::getDefaultName()
 {
     return SettingsManager::getDefaultSearch();
+}
+
+QString SearchEngineManager::getCurrentName() const
+{
+    if ( ! m_currentSearch.isEmpty()) return m_currentSearch;
+
+    return SearchEngineManager::getDefaultName();
+}
+
+void SearchEngineManager::setCurrentName(const QString &name)
+{
+    m_currentSearch = name;
 }
 
 void SearchEngineManager::load()

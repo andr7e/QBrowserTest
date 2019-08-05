@@ -306,7 +306,11 @@ void UrlLineEdit::webViewUrlChanged(const QUrl &url)
 {
     if (m_webView->m_newTab) return;
 
-    m_lineEdit->setText(QString::fromUtf8(url.toEncoded()));
+    QString text = QString::fromUtf8(url.toEncoded());
+
+    if (text.startsWith("qrc")) return;
+
+    m_lineEdit->setText(text);
     m_lineEdit->setCursorPosition(0);
 
     recolorText();
