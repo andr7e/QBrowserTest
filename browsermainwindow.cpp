@@ -88,6 +88,7 @@
 #include <QDockWidget>
 
 #include "utils.h"
+#include "previewmanager.h"
 
 #define BROWSER_NAME "E7 Browser"
 
@@ -720,11 +721,21 @@ void BrowserMainWindow::slotShowBookmarksPanel()
 void BrowserMainWindow::slotAddBookmark()
 {
     WebView *webView = currentTab();
-    QString url = webView->url().toString();
-    QString title = webView->title();
-    QIcon icon = webView->icon();
-    AddBookmarkDialog dialog(url, title, icon);
-    dialog.exec();
+
+    if (webView)
+    {
+        WebView *webView = currentTab();
+        QString url = webView->url().toString();
+        QString title = webView->title();
+        QIcon icon = webView->icon();
+        AddBookmarkDialog dialog(url, title, icon);
+        dialog.exec();
+
+        // Test thumbnail
+
+        QSize m_size(600,400);
+        PreviewManager::create(webView, url, m_size);
+    }
 }
 
 void BrowserMainWindow::slotViewToolbar()

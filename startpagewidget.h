@@ -6,6 +6,7 @@
 
 #include "bookmarks.h"
 
+class WebView;
 
 namespace Ui {
 class StartPageWidget;
@@ -19,7 +20,8 @@ public:
 
     enum Roles
     {
-        VirtualRole = Qt::UserRole
+        VirtualRole = Qt::UserRole,
+        PreviewRole = Qt::UserRole + 1
     };
 
     explicit StartPageWidget(QWidget *parent = 0);
@@ -38,6 +40,7 @@ public slots:
 
 private slots:
     void on_settingsButton_clicked();
+    //void loadFinished();
 
 private:
     void openItem(const QModelIndex &index);
@@ -48,6 +51,9 @@ private:
     QStandardItemModel *m_model;
 
     QMainWindow *m_chooseBookmarkWindow;
+
+    WebView *m_webView;
+    QString m_url;
 };
 
 #include <QStyledItemDelegate>

@@ -387,11 +387,11 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
     if ( ! selectedText.isEmpty())
     {
-        QString str = selectedText.left(30);
+        QString str = selectedText.simplified().trimmed().left(30);
 
         m_searchText = str;
 
-        QAction *searchSelectedAction_ = new QAction(tr("Searh in") + " \"" + str + "\"", this);
+        QAction *searchSelectedAction_ = new QAction(tr("Search text") + " \"" + str + "\"", this);
         connect(searchSelectedAction_, SIGNAL(triggered(bool)), this, SLOT(searchSelectedText()));
         menu->addAction(searchSelectedAction_);
     }

@@ -9,6 +9,9 @@
 #include "bookmarks.h"
 #include "xbel.h"
 #include "browserapplication.h"
+#include "webview.h"
+#include "utils.h"
+#include "previewmanager.h"
 
 StartPageWidget::StartPageWidget(QWidget *parent) :
     QWidget(parent),
@@ -98,6 +101,10 @@ void StartPageWidget::updateInfo()
             QModelIndex index0 = m_model->index(row, 0);
 
             m_model->setData(index0, url, Qt::ToolTipRole);
+
+            QImage image = PreviewManager::get(url);
+
+            m_model->setData(index0, image, PreviewRole);
 
             row++;
 
@@ -260,6 +267,13 @@ void StartPageWidget::openItem(const QModelIndex &index)
         QString url = ui->listView->model()->data(index, Qt::ToolTipRole).toString();
 
         emit openUrl(url);
+
+        /*
+        m_webView = new WebView(this);
+        m_url     = url;
+        m_webView->loadUrl(url);
+        connect(m_webView, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
+        */
     }
 }
 
@@ -301,6 +315,7 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     const QString title = index.data().toString();
     const QIcon icon    = index.data(Qt::DecorationRole).value<QIcon>();
+    const QImage thumbnail = index.data(StartPageWidget::PreviewRole).value<QImage>();
 
     // Background
 
@@ -327,6 +342,11 @@ void TileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     }
 
     painter->drawRect(tileRect);
+
+    // Preview
+
+    QRectF srcRect(0,0,thumbnail.width(), thumbnail.height());
+    painter->drawImage(tileRect, thumbnail, srcRect);
 
     // Icon
 
@@ -405,3 +425,22 @@ void StartPageWidget::on_settingsButton_clicked()
          updateInfo();
     }
 }
+
+/*
+void StartPageWidget::loadFinished(bool ok)
+{
+    CDEBUG;
+
+    if ( ! ok) return;
+
+    m_webView->show();
+
+    // Test thumbnail
+
+    QSize m_size(600, 400);
+
+    PreviewManager::create(m_webView, m_url, m_size);
+
+    m_webView->hide();
+}
+*/

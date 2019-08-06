@@ -50,7 +50,8 @@ HEADERS += \
     utils.h \
     startpagewidget.h \
     settingsmanager.h \
-    searchenginemanager.h
+    searchenginemanager.h \
+    previewmanager.h
 
 SOURCES += \
     autosaver.cpp \
@@ -81,7 +82,8 @@ SOURCES += \
     utils.cpp \
     startpagewidget.cpp \
     settingsmanager.cpp \
-    searchenginemanager.cpp
+    searchenginemanager.cpp \
+    previewmanager.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 

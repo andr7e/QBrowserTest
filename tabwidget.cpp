@@ -80,8 +80,11 @@
 #include "xbel.h"
 #include "startpagewidget.h"
 #include "utils.h"
+#include "previewmanager.h"
 
 //#define USE_MAKE_ICON_FOR_LOADING
+
+//#define MAKE_PREVIEW_THUMBNAIL
 
 TabBar::TabBar(QWidget *parent)
     : QTabBar(parent)
@@ -1111,7 +1114,7 @@ void TabWidget::checkAndUpdateIconForBookmark(const QUrl &url)
     {
         if ( ! node->iconBase64.isEmpty()) continue;
 
-        qDebug() << "checkAndUpdateIconForBookmark" << QUrl(node->url).host() << url.host();
+        CDEBUG << QUrl(node->url).host() << url.host();
 
         QIcon icon = tabIcon(currentIndex());
 
@@ -1127,9 +1130,38 @@ void TabWidget::checkAndUpdateIconForBookmark(const QUrl &url)
             QUndoStack commands;
             commands.push(command);
 
+            //
+
             break;
         }
     }
+
+    //
+
+#ifdef MAKE_PREVIEW_THUMBNAIL
+    QString m_url = url.host();
+
+    CDEBUG << m_url;
+
+    foreach (BookmarkNode *node, nodes)
+    {
+        CDEBUG << QUrl(node->url).host() << url.host();
+
+        if (QUrl(node->url).host() == url.host())
+        {
+            qDebug() << "equal url";
+
+            // Test thumbnail
+
+            QSize m_size(600,400);
+            PreviewManager::create(currentWebView(), m_url, m_size);
+
+            //
+
+            break;
+        }
+    }
+#endif
 }
 
 void TabWidget::webViewUrlChanged(const QUrl &url)
