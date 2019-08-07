@@ -57,6 +57,7 @@
 #include "history.h"
 #include "tabwidget.h"
 #include "webview.h"
+#include "webengineurlrequestinterceptor.h"
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -344,6 +345,11 @@ void BrowserApplication::loadSettings()
         QNetworkProxy::setApplicationProxy(proxy);
     }
     settings.endGroup();
+
+    //
+
+    m_requestInterceptor = new WebEngineUrlRequestInterceptor(this);
+    QWebEngineProfile::defaultProfile()->setRequestInterceptor(m_requestInterceptor);
 }
 
 QList<BrowserMainWindow*> BrowserApplication::mainWindows()
@@ -576,7 +582,9 @@ void BrowserApplication::setPrivateBrowsing(bool privateBrowsing)
 {
     if (m_privateBrowsing == privateBrowsing)
         return;
+
     m_privateBrowsing = privateBrowsing;
+
     if (privateBrowsing) {
         if (!m_privateProfile)
             m_privateProfile = new QWebEngineProfile(this);
@@ -590,5 +598,6 @@ void BrowserApplication::setPrivateBrowsing(bool privateBrowsing)
             window->tabWidget()->clear();
         }
     }
+
     emit privateBrowsingChanged(privateBrowsing);
 }

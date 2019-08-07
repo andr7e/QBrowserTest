@@ -89,6 +89,7 @@
 
 #include "utils.h"
 #include "previewmanager.h"
+#include "webengineurlrequestinterceptor.h"
 
 #define BROWSER_NAME "E7 Browser"
 
@@ -632,8 +633,8 @@ void BrowserMainWindow::setupToolBar()
     connect(m_bookmarkMenuToolBar, SIGNAL(triggered()), this, SLOT(slotShowBookmarksPanel()));
     m_bookmarkMenuToolBar->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
 
-    //m_searchSwitchAction = new QAction(tr("Switch current search..."), this);
-    //connect(m_searchSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchSearch()));
+    m_blockingSwitchAction = new QAction(QIcon(QLatin1String(":blocking.png")), tr("Blocking mode"), this);
+    connect(m_blockingSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchBlocking()));
 
     //
 
@@ -666,8 +667,8 @@ void BrowserMainWindow::setupToolBar()
     QToolBar *toolBar = new QToolBar(this);
     toolBar->addAction(m_addBookmarkToolBar);
     toolBar->addAction(m_bookmarkMenuToolBar);
-    //toolBar->addSeparator();
-    //toolBar->addAction(m_searchSwitchAction);
+    toolBar->addSeparator();
+    toolBar->addAction(m_blockingSwitchAction);
 
     QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
     leftSideLayout->setContentsMargins(0,0,0,0);
@@ -829,6 +830,53 @@ void BrowserMainWindow::slotCurrentSearchChanged(QAction *action)
         m_toolbarSearch->updateSearchName(searchEngine.name);
         m_toolbarSearch->update();
     }
+}
+
+void BrowserMainWindow::slotSwitchBlocking()
+{
+    QMenu *menu = new QMenu(this);
+
+    // Search
+
+    QList<int> keys;
+    keys << Blocking::Off
+         << Blocking::Aggressive
+         << Blocking::Aggressive_NoImage;
+
+    QStringList labels;
+    labels  << tr("Off")
+            << tr("Aggressive")
+            << tr("Aggressive+NoImage");
+
+    Blocking::Mode mode = Blocking::getMode();
+
+    for (int i = 0 ; i < keys.size(); i++)
+    {
+        QAction *action = menu->addAction(labels.at(i));
+        action->setData(keys.at(i));
+        action->setCheckable(true);
+
+        if (i == mode)
+        {
+            action->setChecked(true);
+        }
+    }
+
+    //menu->addSeparator();
+    //menu->addAction(tr("Open search settings..."))->setData("settings");
+
+    connect(menu, SIGNAL(triggered(QAction*)), SLOT(slotCurrentBlockingChanged(QAction*)));
+
+    menu->exec(QCursor::pos());
+}
+
+void BrowserMainWindow::slotCurrentBlockingChanged(QAction *action)
+{
+    Blocking::Mode mode = (Blocking::Mode)action->data().toInt();
+
+    CDEBUG << mode;
+
+    Blocking::setMode(mode);
 }
 
 void BrowserMainWindow::slotViewStatusbar()

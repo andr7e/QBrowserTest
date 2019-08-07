@@ -71,6 +71,7 @@ class BrowserMainWindow;
 class CookieJar;
 class DownloadManager;
 class HistoryManager;
+class WebEngineUrlRequestInterceptor;
 class BrowserApplication : public QApplication
 {
     Q_OBJECT
@@ -135,6 +136,8 @@ private:
 
     QAuthenticator m_lastAuthenticator;
     QAuthenticator m_lastProxyAuthenticator;
+
+    WebEngineUrlRequestInterceptor *m_requestInterceptor;
 };
 
 #endif // BROWSERAPPLICATION_H

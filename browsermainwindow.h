@@ -156,6 +156,9 @@ private slots:
     void slotSwitchSearch();
     void slotCurrentSearchChanged(QAction *action);
 
+    void slotSwitchBlocking();
+    void slotCurrentBlockingChanged(QAction *action);
+
 private:
     void loadDefaultState();
     void setupMenu();
@@ -189,7 +192,7 @@ private:
 
     QAction *m_addBookmarkToolBar;
     QAction *m_bookmarkMenuToolBar;
-    //QAction *m_searchSwitchAction;
+    QAction *m_blockingSwitchAction;
 
     QPrinter *m_currentPrinter;
 

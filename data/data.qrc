@@ -17,5 +17,6 @@
         <file>search/google.xml</file>
         <file>search/wikipedia.xml</file>
         <file>search/yandex.xml</file>
+        <file>blocking.png</file>
     </qresource>
 </RCC>

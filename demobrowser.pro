@@ -51,7 +51,8 @@ HEADERS += \
     startpagewidget.h \
     settingsmanager.h \
     searchenginemanager.h \
-    previewmanager.h
+    previewmanager.h \
+    webengineurlrequestinterceptor.h
 
 SOURCES += \
     autosaver.cpp \
@@ -83,7 +84,8 @@ SOURCES += \
     startpagewidget.cpp \
     settingsmanager.cpp \
     searchenginemanager.cpp \
-    previewmanager.cpp
+    previewmanager.cpp \
+    webengineurlrequestinterceptor.cpp
 
 RESOURCES += data/data.qrc htmls/htmls.qrc
 
