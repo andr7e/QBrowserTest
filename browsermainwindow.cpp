@@ -841,11 +841,13 @@ void BrowserMainWindow::slotSwitchBlocking()
     QList<int> keys;
     keys << Blocking::Off
          << Blocking::Aggressive
+         << Blocking::Aggressive_NoJS
          << Blocking::Aggressive_NoImage;
 
     QStringList labels;
     labels  << tr("Off")
             << tr("Aggressive")
+            << tr("Aggressive+NoJS")
             << tr("Aggressive+NoImage");
 
     Blocking::Mode mode = Blocking::getMode();

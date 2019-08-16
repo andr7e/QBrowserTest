@@ -12,6 +12,7 @@ public:
     {
         Off,
         Aggressive,
+        Aggressive_NoJS,
         Aggressive_NoImage
     };
 

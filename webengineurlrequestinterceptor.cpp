@@ -28,8 +28,20 @@ void WebEngineUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &
             bool ok = (resourceType == QWebEngineUrlRequestInfo::ResourceTypeMainFrame ||
                 resourceType == QWebEngineUrlRequestInfo::ResourceTypeStylesheet ||
                 resourceType == QWebEngineUrlRequestInfo::ResourceTypeImage ||
-                resourceType == QWebEngineUrlRequestInfo::ResourceTypeFavicon /*||
-                resourceType == QWebEngineUrlRequestInfo::ResourceTypeScript*/);
+                resourceType == QWebEngineUrlRequestInfo::ResourceTypeFavicon ||
+                resourceType == QWebEngineUrlRequestInfo::ResourceTypeScript);
+
+            if ( ! ok)
+                info.block(true);
+        }
+        break;
+
+        case Blocking::Aggressive_NoJS:
+        {
+            bool ok = (resourceType == QWebEngineUrlRequestInfo::ResourceTypeMainFrame ||
+                resourceType == QWebEngineUrlRequestInfo::ResourceTypeStylesheet ||
+                resourceType == QWebEngineUrlRequestInfo::ResourceTypeImage ||
+                resourceType == QWebEngineUrlRequestInfo::ResourceTypeFavicon);
 
             if ( ! ok)
                 info.block(true);
@@ -71,7 +83,7 @@ void WebEngineUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &
 
 //
 
-Blocking::Mode Blocking::s_mode = Blocking::Aggressive;
+Blocking::Mode Blocking::s_mode = Blocking::Aggressive_NoJS;
 
 Blocking::Mode Blocking::getMode()
 {
