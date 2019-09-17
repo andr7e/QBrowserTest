@@ -361,7 +361,8 @@ void BrowserMainWindow::setupMenu()
 
     fileMenu->addAction(tr("&New Window"), this, SLOT(slotFileNew()), QKeySequence::New);
     fileMenu->addAction(m_tabWidget->newTabAction());
-    fileMenu->addAction(tr("&Open File..."), this, SLOT(slotFileOpen()), QKeySequence::Open);
+    fileMenu->addAction(tr("&Open saved page..."), this, SLOT(slotFileOpenSavedPage()), QKeySequence::Open);
+    fileMenu->addAction(tr("&Open File..."), this, SLOT(slotFileOpen()));
     fileMenu->addAction(tr("Open &Location..."), this,
                 SLOT(slotSelectLineEdit()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
     fileMenu->addSeparator();
@@ -968,6 +969,17 @@ void BrowserMainWindow::slotFileNew()
     BrowserApplication::instance()->newMainWindow();
     BrowserMainWindow *mw = BrowserApplication::instance()->mainWindow();
     mw->slotHome();
+}
+
+void BrowserMainWindow::slotFileOpenSavedPage()
+{
+    QString file = QFileDialog::getOpenFileName(this, tr("Open Web Page"), QString(),
+            tr("Web Resources (*.html *.htm *mhtml);;All files (*.*)"));
+
+    if (file.isEmpty())
+        return;
+
+    loadPage(file);
 }
 
 void BrowserMainWindow::slotFileOpen()

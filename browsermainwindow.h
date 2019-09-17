@@ -110,6 +110,7 @@ private slots:
     void slotPreferences();
 
     void slotFileNew();
+    void slotFileOpenSavedPage();
     void slotFileOpen();
     void slotFilePrintPreview();
     void slotFilePrint();
