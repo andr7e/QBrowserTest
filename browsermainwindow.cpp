@@ -1115,6 +1115,9 @@ void BrowserMainWindow::closeEvent(QCloseEvent *event)
             return;
         }
     }
+
+    BrowserApplication::closeDownloadManager();
+
     event->accept();
     deleteLater();
 }

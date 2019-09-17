@@ -95,6 +95,7 @@ public:
     static HistoryManager *historyManager();
     static CookieJar *cookieJar();
     static DownloadManager *downloadManager();
+    static void closeDownloadManager();
     static QNetworkAccessManager *networkAccessManager();
     static BookmarksManager *bookmarksManager();
 

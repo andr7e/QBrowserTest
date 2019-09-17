@@ -50,15 +50,6 @@
 
 #include "browserapplication.h"
 
-#include "bookmarks.h"
-#include "browsermainwindow.h"
-#include "cookiejar.h"
-#include "downloadmanager.h"
-#include "history.h"
-#include "tabwidget.h"
-#include "webview.h"
-#include "webengineurlrequestinterceptor.h"
-
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
 #include <QtCore/QLibraryInfo>
@@ -81,6 +72,17 @@
 #include <QWebEngineScriptCollection>
 
 #include <QtCore/QDebug>
+
+#include "bookmarks.h"
+#include "browsermainwindow.h"
+#include "cookiejar.h"
+#include "downloadmanager.h"
+#include "history.h"
+#include "tabwidget.h"
+#include "webview.h"
+#include "webengineurlrequestinterceptor.h"
+
+#include "utils.h"
 
 DownloadManager *BrowserApplication::s_downloadManager = 0;
 HistoryManager *BrowserApplication::s_historyManager = 0;
@@ -534,6 +536,16 @@ DownloadManager *BrowserApplication::downloadManager()
         s_downloadManager = new DownloadManager();
     }
     return s_downloadManager;
+}
+
+void BrowserApplication::closeDownloadManager()
+{
+    if (s_downloadManager)
+    {
+        //CDEBUG << VAR(s_downloadManager->isActiveWindow());
+        //CDEBUG << VAR(s_downloadManager->isVisible());
+        s_downloadManager->close();
+    }
 }
 
 QNetworkAccessManager *BrowserApplication::networkAccessManager()
