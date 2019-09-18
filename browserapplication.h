@@ -109,6 +109,7 @@ public slots:
     void lastWindowClosed();
     void quitBrowser();
     void setPrivateBrowsing(bool);
+    void setPrivateBrowsingInWindow(BrowserMainWindow *window);
 
 signals:
     void privateBrowsingChanged(bool);

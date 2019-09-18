@@ -126,6 +126,8 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     , m_findDialog(new FindDialog(this))
     , m_progressBar(new QProgressBar(this))
 {
+    isPrivated = false;
+
     setToolButtonStyle(Qt::ToolButtonFollowStyle);
     setAttribute(Qt::WA_DeleteOnClose, true);
     statusBar()->setSizeGripEnabled(true);
@@ -261,8 +263,15 @@ QSize BrowserMainWindow::sizeHint() const
     return size;
 }
 
+void BrowserMainWindow::setPrivateWindow()
+{
+    isPrivated = true;
+}
+
 void BrowserMainWindow::save()
 {
+    if (isPrivated) return;
+
     BrowserApplication::instance()->saveSession();
 
     QSettings settings;
@@ -301,6 +310,8 @@ QByteArray BrowserMainWindow::saveState(bool withTabs) const
 
 bool BrowserMainWindow::restoreState(const QByteArray &state)
 {
+    CDEBUG;
+
     int version = 2;
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
@@ -337,7 +348,9 @@ bool BrowserMainWindow::restoreState(const QByteArray &state)
     statusBar()->setVisible(showStatusbar);
     updateStatusbarActionText(showStatusbar);
 
-    if (!tabWidget()->restoreState(tabState))
+    bool loadMainWindow = BrowserApplication::instance()->mainWindows().count() == 0;
+
+    if (loadMainWindow && !tabWidget()->restoreState(tabState))
         return false;
 
     return true;
@@ -360,6 +373,7 @@ void BrowserMainWindow::setupMenu()
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
 
     fileMenu->addAction(tr("&New Window"), this, SLOT(slotFileNew()), QKeySequence::New);
+    fileMenu->addAction(tr("&New Private Window"), this, SLOT(slotFileNewPrivate()));
     fileMenu->addAction(m_tabWidget->newTabAction());
     fileMenu->addAction(tr("&Open saved page..."), this, SLOT(slotFileOpenSavedPage()), QKeySequence::Open);
     fileMenu->addAction(tr("&Open File..."), this, SLOT(slotFileOpen()));
@@ -947,7 +961,16 @@ void BrowserMainWindow::slotUpdateWindowTitle(const QString &title)
 #if defined(Q_OS_OSX)
         setWindowTitle(title);
 #else
-        setWindowTitle(tr("%1 - %2", "Page title and Browser name").arg(title).arg(BROWSER_NAME));
+        bool privateBrowsing = BrowserApplication::instance()->privateBrowsing() || isPrivated;
+
+        QString privateText;
+
+        if (privateBrowsing)
+        {
+            privateText = QString(" - ") + tr("Private Browsing");
+        }
+
+        setWindowTitle(tr("%1 - %2%3", "Page title and Browser name").arg(title).arg(BROWSER_NAME).arg(privateText));
 #endif
     }
 }
@@ -967,8 +990,19 @@ void BrowserMainWindow::slotAboutApplication()
 void BrowserMainWindow::slotFileNew()
 {
     BrowserApplication::instance()->newMainWindow();
+    BrowserApplication::instance()->mainWindow();
+    //BrowserMainWindow *mw = BrowserApplication::instance()->mainWindow();
+    //mw->slotHome();
+}
+
+void BrowserMainWindow::slotFileNewPrivate()
+{
+    BrowserApplication::instance()->newMainWindow();
     BrowserMainWindow *mw = BrowserApplication::instance()->mainWindow();
+    mw->setPrivateWindow();
+    BrowserApplication::instance()->setPrivateBrowsingInWindow(mw);
     mw->slotHome();
+    //mw->tabWidget()->newTab();
 }
 
 void BrowserMainWindow::slotFileOpenSavedPage()

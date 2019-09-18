@@ -613,3 +613,12 @@ void BrowserApplication::setPrivateBrowsing(bool privateBrowsing)
 
     emit privateBrowsingChanged(privateBrowsing);
 }
+
+void BrowserApplication::setPrivateBrowsingInWindow(BrowserMainWindow *window)
+{
+    if (!m_privateProfile)
+        m_privateProfile = new QWebEngineProfile(this);
+
+    if (window)
+        window->tabWidget()->setProfile(m_privateProfile);
+}

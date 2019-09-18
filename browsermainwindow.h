@@ -85,6 +85,9 @@ public:
 
     static const char *defaultHome;
 
+    void setPrivateWindow();
+    void setMainWindow();
+
 public:
     TabWidget *tabWidget() const;
     WebView *currentTab() const;
@@ -110,6 +113,7 @@ private slots:
     void slotPreferences();
 
     void slotFileNew();
+    void slotFileNewPrivate();
     void slotFileOpenSavedPage();
     void slotFileOpen();
     void slotFilePrintPreview();
@@ -207,6 +211,8 @@ private:
     FindDialog *m_findDialog;
     QProgressBar *m_progressBar;
     QDockWidget *dockBookmakrksWidget;
+
+    bool isPrivated;
 };
 
 #endif // BROWSERMAINWINDOW_H
