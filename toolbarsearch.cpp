@@ -73,6 +73,7 @@ ToolbarSearch::ToolbarSearch(QWidget *parent)
     , m_autosaver(new AutoSaver(this))
     , m_maxSavedSearches(10)
     , m_stringListModel(new QStringListModel(this))
+    , isPrivated(false)
 {
     QMenu *m = menu();
     connect(m, SIGNAL(aboutToShow()), this, SLOT(aboutToShowMenu()));
@@ -90,6 +91,11 @@ ToolbarSearch::ToolbarSearch(QWidget *parent)
 ToolbarSearch::~ToolbarSearch()
 {
     m_autosaver->saveIfNeccessary();
+}
+
+void ToolbarSearch::setPrivateMode()
+{
+    isPrivated = true;
 }
 
 void ToolbarSearch::save()
@@ -121,7 +127,7 @@ void ToolbarSearch::searchNow()
     if (newList.size() >= m_maxSavedSearches)
         newList.removeLast();
 
-    if (!BrowserApplication::instance()->privateBrowsing()) {
+    if (!BrowserApplication::instance()->privateBrowsing() && ! isPrivated) {
         m_stringListModel->setStringList(newList);
         m_autosaver->changeOccurred();
     }

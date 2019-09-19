@@ -407,6 +407,7 @@ TabWidget::TabWidget(QWidget *parent)
     , m_fullScreenNotification(0)
     , newTabTitle("New Tab") // (Untitled)
     , m_virtMode(false)
+    , isPrivate(false)
 {
     setElideMode(Qt::ElideRight);
 
@@ -1008,6 +1009,11 @@ void TabWidget::paintEvent(QPaintEvent *event)
     moveNewTabButton();
 }
 
+void TabWidget::setPrivateMode()
+{
+    isPrivate = true;
+}
+
 void TabWidget::webViewLoadStarted()
 {
     qDebug() << "webViewLoadStarted" << m_virtMode;
@@ -1182,7 +1188,7 @@ void TabWidget::webViewUrlChanged(const QUrl &url)
 
         m_tabBar->setTabData(index, url);
         HistoryManager *manager = BrowserApplication::historyManager();
-        if (url.isValid())
+        if (url.isValid() && ! isPrivate)
             manager->addHistoryEntry(url.toString());
     }
 

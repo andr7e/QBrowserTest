@@ -72,6 +72,8 @@ public:
     ToolbarSearch(QWidget *parent = 0);
     ~ToolbarSearch();
 
+    void setPrivateMode();
+
 public slots:
     void clear();
     void searchNow();
@@ -88,6 +90,8 @@ private:
     AutoSaver *m_autosaver;
     int m_maxSavedSearches;
     QStringListModel *m_stringListModel;
+
+    bool isPrivated;
 };
 
 #endif // TOOLBARSEARCH_H

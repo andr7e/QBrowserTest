@@ -225,6 +225,8 @@ public:
 
     void paintEvent(QPaintEvent *event);
 
+    void setPrivateMode();
+
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
@@ -299,6 +301,8 @@ private:
     bool m_virtMode;
 
     QListView *m_listView;
+
+    bool isPrivate;
 };
 
 #endif // TABWIDGET_H

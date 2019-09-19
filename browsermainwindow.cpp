@@ -266,6 +266,9 @@ QSize BrowserMainWindow::sizeHint() const
 void BrowserMainWindow::setPrivateWindow()
 {
     isPrivated = true;
+
+    m_toolbarSearch->setPrivateMode();
+    m_tabWidget->setPrivateMode();
 }
 
 void BrowserMainWindow::save()
