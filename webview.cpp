@@ -391,7 +391,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
         m_searchText = selectedText;
 
-        QAction *searchSelectedAction_ = new QAction(tr("Search text") + " \"" + str + "\"", this);
+        QAction *searchSelectedAction_ = new QAction(tr("Search text") + " \"" + str + "...\"", this);
         connect(searchSelectedAction_, SIGNAL(triggered(bool)), this, SLOT(searchSelectedText()));
         menu->addAction(searchSelectedAction_);
     }

@@ -65,6 +65,7 @@
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QToolButton>
 #include <QtCore/QDebug>
+#include <QStylePainter>
 
 #include "browserapplication.h"
 #include "browsermainwindow.h"
@@ -293,11 +294,33 @@ void TabBar::paintEvent(QPaintEvent *event)
 
         bool loading = m_loadingHash.value(i);
 
+        QRect rect = tabRect(i);
+
+        /* Cut tab name, but bug with moving
+        QRect rect = tabRect(i);
+        int closeButtonWidth = tabButton(i, QTabBar::RightSide)->width();
+
+        QRect rect = tabRect(i);
+        QString elidedText = tab.fontMetrics.elidedText(tab.text, Qt::ElideRight, rect.width() * 90 / 100  - tab.iconSize.width() - closeButtonWidth);
+        CDEBUG << elidedText;
+
+        elidedText.replace("…", "");
+
+        //CDEBUG << elidedText;
+        tab.text = elidedText;
+
+        QStylePainter stylePainter(this);
+
+        stylePainter.setRenderHint(QPainter::Antialiasing);
+        stylePainter.drawControl(QStyle::CE_TabBarTab, tab);
+        */
+
         //qDebug() << "paintEvent" << i << loading;
 
         if (loading)
         {
 #ifndef USE_MAKE_ICON_FOR_LOADING
+
             QRect rect = tab.rect;
 
             //painter.setBrush(Qt::red);
