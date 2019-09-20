@@ -294,13 +294,13 @@ void TabBar::paintEvent(QPaintEvent *event)
 
         bool loading = m_loadingHash.value(i);
 
-        QRect rect = tabRect(i);
+        QRect rect = tab.rect;
 
-        /* Cut tab name, but bug with moving
-        QRect rect = tabRect(i);
+        // Cut tab name, but bug with moving
+        /*
         int closeButtonWidth = tabButton(i, QTabBar::RightSide)->width();
 
-        QRect rect = tabRect(i);
+        QRect rect = tab.rect;
         QString elidedText = tab.fontMetrics.elidedText(tab.text, Qt::ElideRight, rect.width() * 90 / 100  - tab.iconSize.width() - closeButtonWidth);
         CDEBUG << elidedText;
 
@@ -313,7 +313,10 @@ void TabBar::paintEvent(QPaintEvent *event)
 
         stylePainter.setRenderHint(QPainter::Antialiasing);
         stylePainter.drawControl(QStyle::CE_TabBarTab, tab);
-        */
+
+        //stylePainter.drawControl(QStyle::CE_TabBarTabShape, tab);
+        //stylePainter.drawControl(QStyle::CE_TabBarTabLabel, tab);
+        //*/
 
         //qDebug() << "paintEvent" << i << loading;
 
@@ -321,7 +324,7 @@ void TabBar::paintEvent(QPaintEvent *event)
         {
 #ifndef USE_MAKE_ICON_FOR_LOADING
 
-            QRect rect = tab.rect;
+            //QRect rect = tab.rect;
 
             //painter.setBrush(Qt::red);
             //painter.drawEllipse(rect);
