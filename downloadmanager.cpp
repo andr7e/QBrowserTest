@@ -86,6 +86,7 @@ DownloadWidget::DownloadWidget(QWebEngineDownloadItem *download, QWidget *parent
     progressBar->setMaximum(0);
     connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
     connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
+    connect(openFolderButton, SIGNAL(clicked()), this, SLOT(openFolder()));
 
     if (download) {
         m_file.setFile(download->path());
@@ -160,6 +161,17 @@ void DownloadWidget::open()
 {
     QUrl url = QUrl::fromLocalFile(m_file.absoluteFilePath());
     QDesktopServices::openUrl(url);
+}
+
+void DownloadWidget::openFolder()
+{
+    // for thunar available open only folder (can't select in new version?)
+
+    QUrl url = QUrl::fromLocalFile(QFileInfo(m_file.absoluteFilePath()).absoluteDir().absolutePath());
+    QDesktopServices::openUrl(url);
+
+    // nautilus
+    // use xdg-open m_file.absoluteFilePath()
 }
 
 void DownloadWidget::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)

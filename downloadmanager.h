@@ -79,6 +79,7 @@ public:
 private slots:
     void stop();
     void open();
+    void openFolder();
 
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void finished();
