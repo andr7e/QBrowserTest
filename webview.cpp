@@ -376,6 +376,10 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInThisWindow));
         menu->addAction(page()->action(QWebEnginePage::OpenLinkInNewWindow));
 
+        QAction *openLinkInNewPrivateWindowAction_ = new QAction(tr("Open link in new private window"), this);
+        connect(openLinkInNewPrivateWindowAction_, SIGNAL(triggered(bool)), this, SLOT(openLinkInNewPrivateWindow()));
+        menu->addAction(openLinkInNewPrivateWindowAction_);
+
         menu->addSeparator();
         menu->addAction(page()->action(QWebEnginePage::DownloadLinkToDisk));
         menu->addAction(page()->action(QWebEnginePage::CopyLinkToClipboard));
@@ -498,6 +502,17 @@ void WebView::searchSelectedText()
     QUrl url = SearchEngineManager::getUrl(m_searchText);
 
     webPage()->mainWindow()->tabWidget()->newTab()->loadUrl(url);
+}
+
+void WebView::openLinkInNewPrivateWindow()
+{
+    QUrl url = page()->contextMenuData().linkUrl();
+
+    BrowserApplication::instance()->newMainWindow();
+    BrowserMainWindow *mw = BrowserApplication::instance()->mainWindow();
+    mw->setPrivateWindow();
+    BrowserApplication::instance()->setPrivateBrowsingInWindow(mw);
+    mw->loadUrl(url);
 }
 
 // Events not recieve, need m_activeInputWidget

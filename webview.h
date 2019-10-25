@@ -121,6 +121,7 @@ private slots:
     void onIconChanged(const QIcon &icon);
 
     void searchSelectedText();
+    void openLinkInNewPrivateWindow();
 
 private:
     void findActiveInputWidget(QObject *obj, QEvent *event);

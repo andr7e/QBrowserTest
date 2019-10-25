@@ -96,6 +96,7 @@ public:
     Q_INVOKABLE void runScriptOnOpenViews(const QString &);
 
 public slots:
+    void loadUrl(const QUrl &url);
     void loadPage(const QString &url);
     void slotHome();
 
@@ -109,7 +110,6 @@ private slots:
     void slotUpdateStatusbar(const QString &string);
     void slotUpdateWindowTitle(const QString &title = QString());
 
-    void loadUrl(const QUrl &url);
     void slotPreferences();
 
     void slotFileNew();
