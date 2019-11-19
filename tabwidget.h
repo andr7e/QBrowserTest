@@ -96,6 +96,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
     void selectTabAction();
@@ -111,7 +112,10 @@ private:
     QList<QShortcut*> m_tabShortcuts;
     friend class TabWidget;
 
+    bool isDragging;
+
     QPoint m_dragStartPos;
+    QPoint m_dragCurPos;
     int m_dragCurrentIndex;
 
     ChaseWidget *spinnerAnimation;

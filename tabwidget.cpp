@@ -90,6 +90,8 @@
 TabBar::TabBar(QWidget *parent)
     : QTabBar(parent)
 {
+    isDragging = false;
+
     setContextMenuPolicy(Qt::CustomContextMenu);
     setAcceptDrops(true);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
@@ -195,6 +197,10 @@ void TabBar::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
+        CDEBUG;
+
+        isDragging = true;
+
         m_dragStartPos = event->pos();
 
         // To prevent bug with animation
@@ -221,6 +227,9 @@ void TabBar::mousePressEvent(QMouseEvent *event)
 void TabBar::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() == Qt::LeftButton) {
+
+        m_dragCurPos = event->pos();
+
         int diffX = event->pos().x() - m_dragStartPos.x();
         int diffY = event->pos().y() - m_dragStartPos.y();
         if ((event->pos() - m_dragStartPos).manhattanLength() > QApplication::startDragDistance()
@@ -240,6 +249,13 @@ void TabBar::mouseMoveEvent(QMouseEvent *event)
         }
     }
     QTabBar::mouseMoveEvent(event);
+}
+
+void TabBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    CDEBUG;
+
+    isDragging = false;
 }
 
 // When index is -1 index chooses the current tab
@@ -283,31 +299,56 @@ void TabBar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
+    for (int i = 0; i < count(); i++)
+    {
+        QStyleOptionTab tab;
+        initStyleOption(&tab, i);
+
+        int closeButtonWidth = tabButton(i, QTabBar::RightSide)->width();
+
+        //CDEBUG << VAR(tab.iconSize.width()) << VAR(closeButtonWidth);
+
+        QString text = tabToolTip(i);
+        if (text.isEmpty()) text = tabText(i);
+
+        QSize size = tabSizeHint(i);
+        QString elidedText = tab.fontMetrics.elidedText(text, Qt::ElideRight, size.width() - tab.iconSize.width() * 1.4 - closeButtonWidth * 1.4 - size.height() / 2);
+        //CDEBUG << elidedText;
+
+        elidedText.replace("…", "");
+
+        //CDEBUG << elidedText;
+
+        setTabText(i, elidedText);
+    }
+
     QTabBar::paintEvent(event);
 
-    QPainter painter(this);
+    //QPainter painter(this);
+
+    //QStylePainter stylePainter(this);
+
+    int currentTab = currentIndex();
 
     for (int i = 0; i < count(); i++)
     {
         QStyleOptionTab tab;
         initStyleOption(&tab, i);
 
+        //
+
         bool loading = m_loadingHash.value(i);
 
-        QRect rect = tab.rect;
+        //QRect rect = tab.rect;
 
-        // Cut tab name, but bug with moving
-        /*
-        int closeButtonWidth = tabButton(i, QTabBar::RightSide)->width();
+        QRect controlsRectangle(style()->subElementRect(QStyle::SE_TabBarTabLeftButton, &tab, this));
 
-        QRect rect = tab.rect;
-        QString elidedText = tab.fontMetrics.elidedText(tab.text, Qt::ElideRight, rect.width() * 90 / 100  - tab.iconSize.width() - closeButtonWidth);
-        CDEBUG << elidedText;
+        if (i == currentTab)
+        {
+            //CDEBUG << rect << controlsRectangle;
 
-        elidedText.replace("…", "");
-
-        //CDEBUG << elidedText;
-        tab.text = elidedText;
+            //loading = true;
+        }
 
         QStylePainter stylePainter(this);
 
@@ -332,7 +373,13 @@ void TabBar::paintEvent(QPaintEvent *event)
             QSize iconSize(tab.iconSize); //  QSize(20,20)
             //QRect iconRect = QRect(0, 0, iconSize.width(), iconSize.height());
 
-            spinnerAnimation->paint(&painter, rect, iconSize); //QRect(0,0,30,30));
+            if (isDragging)
+            {
+                //CDEBUG << m_dragCurPos << m_dragStartPos;
+                //rect.moveRight(m_dragCurPos.x() - m_dragStartPos.x());
+            }
+
+            spinnerAnimation->paint(&stylePainter, controlsRectangle, iconSize); //QRect(0,0,30,30));
             //painter.restore();
 
 #else
@@ -355,6 +402,8 @@ void TabBar::paintEvent(QPaintEvent *event)
             //
         }
     }
+
+    //
 }
 
 void TabBar::setTabLoading(int index, bool loading)
