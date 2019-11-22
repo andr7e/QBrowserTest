@@ -108,11 +108,6 @@ TabBar::TabBar(QWidget *parent)
             this, SIGNAL(closeTab(int)));
     setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     setMovable(true);
-
-    spinnerAnimation = new ChaseWidget(this);
-    spinnerAnimation->setActive(false);
-
-    connect(spinnerAnimation, SIGNAL(updated()), SLOT(update()));
 }
 
 TabBar::~TabBar()
@@ -202,14 +197,6 @@ void TabBar::mousePressEvent(QMouseEvent *event)
         isDragging = true;
 
         m_dragStartPos = event->pos();
-
-        // To prevent bug with animation
-        // Maybe more good solution with move animation
-
-        // With USE_MAKE_ICON_FOR_LOADING
-        // problem when tab swapped, need change state
-
-        m_loadingHash.clear();
     }
 
     QTabBar::mousePressEvent(event);
@@ -253,7 +240,9 @@ void TabBar::mouseMoveEvent(QMouseEvent *event)
 
 void TabBar::mouseReleaseEvent(QMouseEvent *event)
 {
-    CDEBUG;
+    Q_UNUSED(event)
+
+    //CDEBUG;
 
     isDragging = false;
 }
@@ -323,113 +312,41 @@ void TabBar::paintEvent(QPaintEvent *event)
     }
 
     QTabBar::paintEvent(event);
-
-    //QPainter painter(this);
-
-    //QStylePainter stylePainter(this);
-
-    int currentTab = currentIndex();
-
-    for (int i = 0; i < count(); i++)
-    {
-        QStyleOptionTab tab;
-        initStyleOption(&tab, i);
-
-        //
-
-        bool loading = m_loadingHash.value(i);
-
-        //QRect rect = tab.rect;
-
-        QRect controlsRectangle(style()->subElementRect(QStyle::SE_TabBarTabLeftButton, &tab, this));
-
-        if (i == currentTab)
-        {
-            //CDEBUG << rect << controlsRectangle;
-
-            //loading = true;
-        }
-
-        QStylePainter stylePainter(this);
-
-        stylePainter.setRenderHint(QPainter::Antialiasing);
-        stylePainter.drawControl(QStyle::CE_TabBarTab, tab);
-
-        //stylePainter.drawControl(QStyle::CE_TabBarTabShape, tab);
-        //stylePainter.drawControl(QStyle::CE_TabBarTabLabel, tab);
-        //*/
-
-        //qDebug() << "paintEvent" << i << loading;
-
-        if (loading)
-        {
-#ifndef USE_MAKE_ICON_FOR_LOADING
-
-            //QRect rect = tab.rect;
-
-            //painter.setBrush(Qt::red);
-            //painter.drawEllipse(rect);
-
-            QSize iconSize(tab.iconSize); //  QSize(20,20)
-            //QRect iconRect = QRect(0, 0, iconSize.width(), iconSize.height());
-
-            if (isDragging)
-            {
-                //CDEBUG << m_dragCurPos << m_dragStartPos;
-                //rect.moveRight(m_dragCurPos.x() - m_dragStartPos.x());
-            }
-
-            spinnerAnimation->paint(&stylePainter, controlsRectangle, iconSize); //QRect(0,0,30,30));
-            //painter.restore();
-
-#else
-            QSize iconSize(tab.iconSize);
-
-            QImage image(iconSize, QImage::Format_ARGB32);
-            image.fill(Qt::transparent);
-            QPainter pp(&image);
-
-            QRect myRect(0, 0, iconSize.width(), iconSize.height());
-            spinnerAnimation->paint(&pp, myRect, iconSize);
-
-            QPixmap pixmap = QPixmap::fromImage(image);
-            setTabIcon(i, QIcon(pixmap));
-#endif
-
-        }
-        else
-        {
-            //
-        }
-    }
-
-    //
 }
 
 void TabBar::setTabLoading(int index, bool loading)
 {
-    if (loading)
-    {
-        m_loadingHash[index] = loading;
+    qDebug() << "setTabLoading" << index << loading;
 
-        spinnerAnimation->setAnimated(loading);
+    //
+
+    QWidget *widget = tabButton(index, QTabBar::LeftSide);
+
+    if (widget)
+    {
+        ChaseWidget *spinnerAnimation1 = static_cast<ChaseWidget*>(widget);
+
+        if (spinnerAnimation1)
+        {
+            spinnerAnimation1->setAnimated(loading);
+            if ( ! loading)
+            {
+                // remove
+                //delete spinnerAnimation1;
+                setTabButton(index, QTabBar::LeftSide, nullptr);
+            }
+        }
     }
     else
     {
-        m_loadingHash.remove(index);
-
-        if (m_loadingHash.isEmpty())
+        if (loading)
         {
-            spinnerAnimation->setAnimated(loading);
+            // add
+            ChaseWidget *spinnerAnimation0 = new ChaseWidget(this);
+            spinnerAnimation0->setAnimated(loading);
+            setTabButton(index, QTabBar::LeftSide, spinnerAnimation0);
         }
     }
-
-    qDebug() << "setTabLoading" << loading << m_loadingHash;
-}
-
-void TabBar::clearLoadingState(int index)
-{
-    m_loadingHash.remove(index);
 }
 
 QSize TabBar::tabSizeHint(int index) const
@@ -993,7 +910,7 @@ void TabWidget::requestCloseTab(int index)
     {
         tab->page()->triggerAction(QWebEnginePage::RequestClose);
 
-        if (m_tabBar) m_tabBar->clearLoadingState(index);
+        //if (m_tabBar) m_tabBar->clearLoadingState(index);
     }
     else
     {
@@ -1069,10 +986,12 @@ void TabWidget::setTabLoading(int index, bool loading)
     if (loading)
     {
         //QIcon icon(QLatin1String(":loading.gif"));
-        QPixmap pixmap(16,16);
-        pixmap.fill(Qt::transparent);
-        QIcon icon(pixmap);
-        setTabIcon(index, icon);
+        //QPixmap pixmap(0,0);
+        //pixmap.fill(Qt::transparent);
+        //QIcon icon(pixmap);
+        //setTabIcon(index, icon);
+
+        setTabIcon(index, QIcon());
     }
 
     if (m_tabBar)

@@ -89,7 +89,6 @@ public:
     void paintEvent(QPaintEvent *event);
 
     void setTabLoading(int index, bool loading);
-    void clearLoadingState(int index);
 
     QSize tabSizeHint(int index) const;
 
@@ -117,10 +116,6 @@ private:
     QPoint m_dragStartPos;
     QPoint m_dragCurPos;
     int m_dragCurrentIndex;
-
-    ChaseWidget *spinnerAnimation;
-
-    QHash<int,bool> m_loadingHash;
 };
 
 #include <QWebEnginePage>

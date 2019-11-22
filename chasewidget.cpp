@@ -136,11 +136,13 @@ void ChaseWidget::paintEvent(QPaintEvent *event)
 
     if ( ! m_animated)  return;
 
-    const int extent = qMin(width(), height());
-    const int displ = extent / 8;
+
+    const int size = qMin(width(), height());
+    const int iconSize = size * 0.75;
+    const int offset = (size - iconSize) / 2;
     //const int ext = extent / 4 - 1;
 
-    QRect rect(0,displ,extent,extent);
+    QRect rect(0,offset,iconSize,iconSize);
     QPainter p(this);
 
     QSize m_scaledSize;// = rect.size();
@@ -192,7 +194,7 @@ void ChaseWidget::setActive(bool active)
 
 QSize ChaseWidget::sizeHint() const
 {
-    return QSize(32, 32);
+    return QSize(30, 30);
 }
 
 void ChaseWidget::timerEvent(QTimerEvent *event)
