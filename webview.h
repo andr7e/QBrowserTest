@@ -126,6 +126,9 @@ private slots:
 private:
     void findActiveInputWidget(QObject *obj, QEvent *event);
 
+signals:
+    void zoomChanged(int zoom);
+
 private:
     QString m_statusBarText;
     QUrl m_initialUrl;

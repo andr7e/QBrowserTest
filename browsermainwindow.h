@@ -164,12 +164,18 @@ private slots:
     void slotSwitchBlocking();
     void slotCurrentBlockingChanged(QAction *action);
 
+    void setZoomActionText();
+
+
 private:
     void loadDefaultState();
     void setupMenu();
     void setupToolBar();
     void updateStatusbarActionText(bool visible);
     void handleFindTextResult(bool found);
+
+    int getZoom();
+    QString getZoomAsString(int zoom);
 
 private:
     QToolBar *m_navigationBar;
@@ -198,6 +204,7 @@ private:
     QAction *m_addBookmarkToolBar;
     QAction *m_bookmarkMenuToolBar;
     QAction *m_blockingSwitchAction;
+    QAction *m_zoomSwitchAction;
 
     QPrinter *m_currentPrinter;
 

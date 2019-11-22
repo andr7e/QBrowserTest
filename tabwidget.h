@@ -195,6 +195,8 @@ signals:
     void menuBarVisibilityChangeRequested(bool visible);
     void statusBarVisibilityChangeRequested(bool visible);
     void toolBarVisibilityChangeRequested(bool visible);
+    void zoomChanged(int zoom);
+
 #if defined(QWEBENGINEPAGE_PRINTREQUESTED)
     void printRequested(QWebEngineFrame *frame);
 #endif
@@ -268,6 +270,7 @@ private slots:
     void fullScreenRequested(QWebEngineFullScreenRequest request);
     void handleTabBarDoubleClicked(int index);
     void webPageMutedOrAudibleChanged();
+    void webViewZoomChanged(int zoom);
 
     void checkAndUpdateIconForBookmark(const QUrl &url);
 

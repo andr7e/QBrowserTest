@@ -644,6 +644,8 @@ void TabWidget::currentChanged(int index)
             this, SLOT(downloadRequested(QWebEngineDownloadItem*)));
     connect(webView->page(), SIGNAL(fullScreenRequested(QWebEngineFullScreenRequest)),
             this, SLOT(fullScreenRequested(QWebEngineFullScreenRequest)));
+    connect(webView, SIGNAL(zoomChanged(int)),
+            this, SLOT(webViewZoomChanged(int)));
 
     for (int i = 0; i < m_actions.count(); ++i) {
         WebActionMapper *mapper = m_actions[i];
@@ -1179,6 +1181,13 @@ void TabWidget::webPageMutedOrAudibleChanged() {
 
         setTabTitle(index, title);
     }
+}
+
+void TabWidget::webViewZoomChanged(int zoom)
+{
+    CDEBUG << zoom;
+
+    emit zoomChanged(zoom);
 }
 
 void TabWidget::checkAndUpdateIconForBookmark(const QUrl &url)

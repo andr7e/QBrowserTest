@@ -232,6 +232,11 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     connect(m_tabWidget, SIGNAL(lastTabClosed()),
             m_tabWidget, SLOT(newTab()));
 
+    connect(m_tabWidget, SIGNAL(zoomChanged(int)),
+            this, SLOT(setZoomActionText()));
+    connect(m_tabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(setZoomActionText()));
+
     slotUpdateWindowTitle();
     loadDefaultState();
 
@@ -654,6 +659,10 @@ void BrowserMainWindow::setupToolBar()
     m_blockingSwitchAction = new QAction(QIcon(QLatin1String(":blocking.png")), tr("Blocking mode"), this);
     connect(m_blockingSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchBlocking()));
 
+    m_zoomSwitchAction = new QAction("", this);
+    //connect(m_zoomSwitchAction, SIGNAL(triggered()), this, SLOT(slotSwitchBlocking()));
+    m_zoomSwitchAction->setVisible(false);
+
     //
 
 #ifndef USE_SPLITTER_BETWEEN_LINE
@@ -687,6 +696,7 @@ void BrowserMainWindow::setupToolBar()
     toolBar->addAction(m_bookmarkMenuToolBar);
     toolBar->addSeparator();
     toolBar->addAction(m_blockingSwitchAction);
+    toolBar->addAction(m_zoomSwitchAction);
 
     QHBoxLayout *leftSideLayout = new QHBoxLayout(this);
     leftSideLayout->setContentsMargins(0,0,0,0);
@@ -897,6 +907,17 @@ void BrowserMainWindow::slotCurrentBlockingChanged(QAction *action)
     CDEBUG << mode;
 
     Blocking::setMode(mode);
+}
+
+void BrowserMainWindow::setZoomActionText()
+{
+    int zoom = getZoom();
+
+    bool visible = ! (zoom == 100);
+    m_zoomSwitchAction->setVisible(visible);
+
+    QString zoomStr = getZoomAsString(zoom);
+    m_zoomSwitchAction->setText(zoomStr);
 }
 
 void BrowserMainWindow::slotViewStatusbar()
@@ -1454,4 +1475,26 @@ void BrowserMainWindow::slotOpenActionUrl(QAction *action)
 void BrowserMainWindow::geometryChangeRequested(const QRect &geometry)
 {
     setGeometry(geometry);
+}
+
+int BrowserMainWindow::getZoom()
+{
+    WebView *webView = currentTab();
+
+    if (webView)
+    {
+        return webView->zoomFactor() * 100;
+    }
+
+    return -1;
+}
+
+QString BrowserMainWindow::getZoomAsString(int zoom)
+{
+    if (zoom > 0)
+    {
+        return QString::number(zoom) + "%";
+    }
+
+    return QString();
 }

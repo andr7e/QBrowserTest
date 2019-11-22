@@ -418,6 +418,29 @@ void WebView::wheelEvent(QWheelEvent *event)
         return;
     }
 #endif
+
+    if (event->orientation() == Qt::Vertical && event->modifiers() & Qt::ControlModifier)
+    {
+        int delta = event->delta();
+
+        int sign = 0;
+
+        if (delta > 0) sign = 1;
+        else if (delta < 0) sign = -1;
+
+        qreal factor = zoomFactor();
+
+        qreal newFactor = factor + sign * 0.1;
+
+        setZoomFactor(newFactor);
+
+        int percent = newFactor * 100;
+        emit zoomChanged(percent);
+
+        event->accept();
+        return;
+    }
+
     QWebEngineView::wheelEvent(event);
 }
 
