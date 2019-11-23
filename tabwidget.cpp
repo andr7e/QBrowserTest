@@ -300,8 +300,26 @@ void TabBar::paintEvent(QPaintEvent *event)
         QString text = tabToolTip(i);
         if (text.isEmpty()) text = tabText(i);
 
+        //
+
+        int width = 0;
+
+        QWidget *widget = tabButton(i, QTabBar::LeftSide);
+
+        if (widget)
+        {
+            ChaseWidget *spinnerAnimation1 = static_cast<ChaseWidget*>(widget);
+
+            if (spinnerAnimation1)
+            {
+                width = spinnerAnimation1->width();
+            }
+        }
+
+        //
+
         QSize size = tabSizeHint(i);
-        QString elidedText = tab.fontMetrics.elidedText(text, Qt::ElideRight, size.width() - tab.iconSize.width() * 1.4 - closeButtonWidth * 1.4 - size.height() / 2);
+        QString elidedText = tab.fontMetrics.elidedText(text, Qt::ElideRight, size.width() - tab.iconSize.width() * 1.4 - width - closeButtonWidth * 1.4 - size.height() / 2);
         //CDEBUG << elidedText;
 
         elidedText.replace("…", "");
@@ -986,10 +1004,12 @@ void TabWidget::setTabLoading(int index, bool loading)
     if (loading)
     {
         //QIcon icon(QLatin1String(":loading.gif"));
-        //QPixmap pixmap(0,0);
-        //pixmap.fill(Qt::transparent);
-        //QIcon icon(pixmap);
-        //setTabIcon(index, icon);
+        /*
+        QPixmap pixmap(5,2);
+        pixmap.fill(Qt::black);
+        QIcon icon(pixmap);
+        setTabIcon(index, icon);
+        */
 
         setTabIcon(index, QIcon());
     }

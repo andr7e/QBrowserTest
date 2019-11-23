@@ -137,7 +137,7 @@ void ChaseWidget::paintEvent(QPaintEvent *event)
     if ( ! m_animated)  return;
 
 
-    const int size = qMin(width(), height());
+    const int size = height();
     const int iconSize = size * 0.75;
     const int offset = (size - iconSize) / 2;
     //const int ext = extent / 4 - 1;
@@ -174,7 +174,7 @@ void ChaseWidget::paint(QPainter *painter, const QRect &rect, const QSize &m_sca
     const int x = rect.x() + offset_x;
     const int y = rect.y() + offset_y;
 
-    const qreal circleOffset(iconSize.width() / 8.0);
+    const qreal circleOffset = (iconSize.width() / 8.0);
     const QRectF targetRectangle((x + circleOffset), (y + circleOffset), (iconSize.width() - (circleOffset * 2)), (iconSize.height() - (circleOffset * 2)));
     QConicalGradient gradient(targetRectangle.center(), m_astep);
     gradient.setColorAt(0, m_color);
@@ -194,7 +194,7 @@ void ChaseWidget::setActive(bool active)
 
 QSize ChaseWidget::sizeHint() const
 {
-    return QSize(30, 30);
+    return QSize(20, 30);
 }
 
 void ChaseWidget::timerEvent(QTimerEvent *event)
