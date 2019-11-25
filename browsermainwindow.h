@@ -124,6 +124,7 @@ private slots:
     void slotStartFind();
     void slotEndFind();
     void slotEditFind(const QString &search);
+    void slotEditFindSensitively();
     void slotEditFindNext();
     void slotEditFindPrevious();
     void slotShowBookmarksDialog();

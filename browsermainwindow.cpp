@@ -160,6 +160,7 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     //
 
     connect(m_findDialog, SIGNAL(textChanged(QString)), SLOT(slotEditFind(QString)));
+    connect(m_findDialog, SIGNAL(caseSensitivelyChanged()), SLOT(slotEditFindSensitively()));
     connect(m_findDialog, SIGNAL(findClosed()),         SLOT(slotEndFind()));
     connect(m_findDialog, SIGNAL(findNext()),           SLOT(slotEditFindNext()));
     connect(m_findDialog, SIGNAL(findPrev()),           SLOT(slotEditFindPrevious()));
@@ -1206,32 +1207,59 @@ void BrowserMainWindow::slotEditFind(const QString &search)
     if (!currentTab())
         return;
 
-    /*
-    bool ok;
-    QString search = QInputDialog::getText(this, tr("Find"),
-                                          tr("Text:"), QLineEdit::Normal,
-                                          m_lastSearch, &ok);
-                                          */
+    QWebEnginePage::FindFlags flags;
+
+    bool caseSensitively = m_findDialog->useCaseSensitively();
+    if (caseSensitively) flags |= QWebEnginePage::FindCaseSensitively;
+
     bool ok = true;
 
     if (ok && !search.isEmpty()) {
         m_lastSearch = search;
-        currentTab()->findText(m_lastSearch, 0, invoke(this, &BrowserMainWindow::handleFindTextResult));
+        currentTab()->findText(m_lastSearch, flags, invoke(this, &BrowserMainWindow::handleFindTextResult));
     }
+}
+
+void BrowserMainWindow::slotEditFindSensitively()
+{
+    if (!currentTab())
+        return;
+
+    QWebEnginePage::FindFlags flags;
+
+    bool caseSensitively = m_findDialog->useCaseSensitively();
+    if (caseSensitively) flags |= QWebEnginePage::FindCaseSensitively;
+
+    // If text not changed, flags not apply. Use clear old text.
+    currentTab()->findText("", 0);
+    currentTab()->findText(m_lastSearch, flags, invoke(this, &BrowserMainWindow::handleFindTextResult));
 }
 
 void BrowserMainWindow::slotEditFindNext()
 {
     if (!currentTab() && !m_lastSearch.isEmpty())
         return;
-    currentTab()->findText(m_lastSearch);
+
+    QWebEnginePage::FindFlags flags;
+
+    bool caseSensitively = m_findDialog->useCaseSensitively();
+    if (caseSensitively) flags |= QWebEnginePage::FindCaseSensitively;
+
+    currentTab()->findText(m_lastSearch, flags);
 }
 
 void BrowserMainWindow::slotEditFindPrevious()
 {
     if (!currentTab() && !m_lastSearch.isEmpty())
         return;
-    currentTab()->findText(m_lastSearch, QWebEnginePage::FindBackward);
+
+    QWebEnginePage::FindFlags flags;
+    flags |= QWebEnginePage::FindBackward;
+
+    bool caseSensitively = m_findDialog->useCaseSensitively();
+    if (caseSensitively) flags |= QWebEnginePage::FindCaseSensitively;
+
+    currentTab()->findText(m_lastSearch, flags);
 }
 
 void BrowserMainWindow::slotViewZoomIn()

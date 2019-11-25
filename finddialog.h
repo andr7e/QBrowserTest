@@ -19,6 +19,8 @@ public:
 
     void setFindFocus();
 
+    bool useCaseSensitively();
+
 private slots:
     void on_lineEdit_textChanged(const QString &text);
     void on_closeButton_clicked();
@@ -29,11 +31,14 @@ private slots:
 
     void on_lineEdit_editingFinished();
 
+    void on_caseSensitivelyCheckBox_clicked();
+
 signals:
     void textChanged(QString);
     void findClosed();
     void findNext();
     void findPrev();
+    void caseSensitivelyChanged();
 
 private:
     Ui::FindDialog *ui;

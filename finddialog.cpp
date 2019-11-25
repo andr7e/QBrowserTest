@@ -23,6 +23,11 @@ void FindDialog::setFindFocus()
     ui->lineEdit->setFocus();
 }
 
+bool FindDialog::useCaseSensitively()
+{
+    return ui->caseSensitivelyCheckBox->checkState() == Qt::Checked;
+}
+
 void FindDialog::on_closeButton_clicked()
 {
     emit findClosed();
@@ -46,4 +51,9 @@ void FindDialog::on_prevToolButton_clicked()
 void FindDialog::on_lineEdit_editingFinished()
 {
     emit findNext();
+}
+
+void FindDialog::on_caseSensitivelyCheckBox_clicked()
+{
+    emit caseSensitivelyChanged();
 }
