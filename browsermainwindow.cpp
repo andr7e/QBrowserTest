@@ -1004,9 +1004,8 @@ void BrowserMainWindow::slotAboutApplication()
 {
     QMessageBox::about(this, tr("About"), tr(
         "Version %1"
-        "<p>This demo demonstrates the facilities "
-        "of Qt WebEngine in action, providing an example "
-        "browser for you to experiment with.<p>"
+        "<p>E7 Browser<p>"
+        "<p>It's based on Qt demo browser with Qt WebEngine.<p>"
         "<p>Qt WebEngine is based on the Chromium open source project "
         "developed at <a href=\"http://www.chromium.org/\">http://www.chromium.org/</a>."
         ).arg(QCoreApplication::applicationVersion()));
@@ -1026,7 +1025,7 @@ void BrowserMainWindow::slotFileNewPrivate()
     BrowserMainWindow *mw = BrowserApplication::instance()->mainWindow();
     mw->setPrivateWindow();
     BrowserApplication::instance()->setPrivateBrowsingInWindow(mw);
-    mw->slotHome();
+    mw->slotPrivateHome();
     //mw->tabWidget()->newTab();
 }
 
@@ -1315,6 +1314,12 @@ void BrowserMainWindow::slotHome()
     QSettings settings;
     settings.beginGroup(QLatin1String("MainWindow"));
     QString home = settings.value(QLatin1String("home"), QLatin1String(defaultHome)).toString();
+    loadPage(home);
+}
+
+void BrowserMainWindow::slotPrivateHome()
+{
+    QString home = "home.private";
     loadPage(home);
 }
 

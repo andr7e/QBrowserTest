@@ -99,6 +99,7 @@ public slots:
     void loadUrl(const QUrl &url);
     void loadPage(const QString &url);
     void slotHome();
+    void slotPrivateHome();
 
 protected:
     void closeEvent(QCloseEvent *event);

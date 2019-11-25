@@ -397,6 +397,10 @@ QSize TabBar::tabSizeHint(int index) const
 
         return QSize(tabWidth, height);
     }
+    else if (num == 1)
+    {
+        return QSize(maxTabWidth, height);
+    }
 
     return QTabBar::tabSizeHint(index);
 }
@@ -485,7 +489,7 @@ TabWidget::TabWidget(QWidget *parent)
 
     m_lineEdits = new QStackedWidget(this);
 
-    HtmlTemplateManager::get("newtab");
+    //HtmlTemplateManager::get("newtab");
 }
 
 TabWidget::~TabWidget()

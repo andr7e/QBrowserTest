@@ -488,6 +488,12 @@ void WebView::loadUrl(const QUrl &url)
 
         load(QUrl("qrc:///home.html"));
     }
+    else if (site.contains("home.private"))
+    {
+        m_virtTab = true;
+
+        load(QUrl("qrc:///private.html"));
+    }
     else
     {
         m_virtTab = false;
