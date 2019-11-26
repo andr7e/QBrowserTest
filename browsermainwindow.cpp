@@ -914,7 +914,7 @@ void BrowserMainWindow::setZoomActionText()
 {
     int zoom = getZoom();
 
-    bool visible = ! (zoom == 100);
+    bool visible = ! (zoom == 100 || zoom == -1);
     m_zoomSwitchAction->setVisible(visible);
 
     QString zoomStr = getZoomAsString(zoom);
