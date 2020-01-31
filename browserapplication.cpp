@@ -84,10 +84,14 @@
 
 #include "utils.h"
 
+#define BROWSER_NAME "E7Browser"
+#define BROWSER_VER  "1.0 alpha 3"
+
 DownloadManager *BrowserApplication::s_downloadManager = 0;
 HistoryManager *BrowserApplication::s_historyManager = 0;
 QNetworkAccessManager *BrowserApplication::s_networkAccessManager = 0;
 BookmarksManager *BrowserApplication::s_bookmarksManager = 0;
+BlockingManager *BrowserApplication::s_blockingManager = 0;
 
 static void setUserStyleSheet(QWebEngineProfile *profile, const QString &styleSheet, BrowserMainWindow *mainWindow = 0)
 {
@@ -131,8 +135,8 @@ BrowserApplication::BrowserApplication(int &argc, char **argv)
     , m_privateBrowsing(false)
 {
     QCoreApplication::setOrganizationName(QLatin1String("Qt"));
-    QCoreApplication::setApplicationName(QLatin1String("demobrowser"));
-    QCoreApplication::setApplicationVersion(QLatin1String("1.0 alpha 2"));
+    QCoreApplication::setApplicationName(QLatin1String(BROWSER_NAME));
+    QCoreApplication::setApplicationVersion(QLatin1String(BROWSER_VER));
     QString serverName = QCoreApplication::applicationName()
         + QString::fromLatin1(QT_VERSION_STR).remove('.') + QLatin1String("webengine");
     QLocalSocket socket;
@@ -195,6 +199,7 @@ BrowserApplication::~BrowserApplication()
     }
     delete s_networkAccessManager;
     delete s_bookmarksManager;
+    delete s_blockingManager;
 }
 
 void BrowserApplication::lastWindowClosed()
@@ -347,6 +352,8 @@ void BrowserApplication::loadSettings()
         QNetworkProxy::setApplicationProxy(proxy);
     }
     settings.endGroup();
+
+    BrowserApplication::blockingManager()->loadSettings();
 
     //
 
@@ -569,6 +576,14 @@ BookmarksManager *BrowserApplication::bookmarksManager()
         s_bookmarksManager = new BookmarksManager;
     }
     return s_bookmarksManager;
+}
+
+BlockingManager *BrowserApplication::blockingManager()
+{
+    if (!s_blockingManager) {
+        s_blockingManager = new BlockingManager();
+    }
+    return s_blockingManager;
 }
 
 QIcon BrowserApplication::icon(const QUrl &url) const

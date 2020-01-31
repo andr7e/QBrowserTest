@@ -293,6 +293,8 @@ void BrowserMainWindow::save()
     QByteArray data = saveState(saveTabs);
     settings.setValue(QLatin1String("defaultState"), data);
     settings.endGroup();
+
+    BrowserApplication::blockingManager()->saveSettings();
 }
 
 static const qint32 BrowserMainWindowMagic = 0xba;
@@ -754,7 +756,6 @@ void BrowserMainWindow::slotAddBookmark()
 
     if (webView)
     {
-        WebView *webView = currentTab();
         QString url = webView->url().toString();
         QString title = webView->title();
         QIcon icon = webView->icon();
@@ -868,10 +869,10 @@ void BrowserMainWindow::slotSwitchBlocking()
     // Search
 
     QList<int> keys;
-    keys << Blocking::Off
-         << Blocking::Aggressive
-         << Blocking::Aggressive_NoJS
-         << Blocking::Aggressive_NoImage;
+    keys << BlockingManager::Off
+         << BlockingManager::Aggressive
+         << BlockingManager::Aggressive_NoJS
+         << BlockingManager::Aggressive_NoImage;
 
     QStringList labels;
     labels  << tr("Off")
@@ -879,7 +880,17 @@ void BrowserMainWindow::slotSwitchBlocking()
             << tr("Aggressive+NoJS")
             << tr("Aggressive+NoImage");
 
-    Blocking::Mode mode = Blocking::getMode();
+
+    QString hostname;
+    WebView *webView = currentTab();
+    if (webView)
+    {
+        hostname = webView->url().host();
+
+        CDEBUG << hostname;
+    }
+
+    BlockingManager::Mode mode = BrowserApplication::blockingManager()->getMode(hostname);
 
     for (int i = 0 ; i < keys.size(); i++)
     {
@@ -903,11 +914,21 @@ void BrowserMainWindow::slotSwitchBlocking()
 
 void BrowserMainWindow::slotCurrentBlockingChanged(QAction *action)
 {
-    Blocking::Mode mode = (Blocking::Mode)action->data().toInt();
+    BlockingManager::Mode mode = (BlockingManager::Mode)action->data().toInt();
 
     CDEBUG << mode;
 
-    Blocking::setMode(mode);
+    QString hostname;
+    WebView *webView = currentTab();
+    if (webView)
+    {
+        hostname = webView->url().host();
+
+        CDEBUG << hostname;
+    }
+
+    if ( ! hostname.isEmpty())
+        BrowserApplication::blockingManager()->setMode(hostname, mode);
 }
 
 void BrowserMainWindow::setZoomActionText()

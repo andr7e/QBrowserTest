@@ -3,10 +3,9 @@
 
 #include <QWebEngineUrlRequestInterceptor>
 
-class Blocking
+class BlockingManager
 {
 public:
-    Blocking(){}
 
     enum Mode
     {
@@ -16,11 +15,20 @@ public:
         Aggressive_NoImage
     };
 
-    static Mode getMode();
-    static void setMode(Mode mode);
+    BlockingManager() : defaultMode(BlockingManager::Aggressive_NoJS)
+    {
+
+    }
+
+    Mode getMode(const QString &hostname);
+    void setMode(const QString &hostname, Mode mode);
+
+    void loadSettings();
+    void saveSettings();
 
 private:
-    static Mode s_mode;
+    Mode defaultMode;
+    QHash<QString,int> hostModeHash_;
 };
 
 class WebEngineUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor

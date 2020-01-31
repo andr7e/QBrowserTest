@@ -72,6 +72,7 @@ class CookieJar;
 class DownloadManager;
 class HistoryManager;
 class WebEngineUrlRequestInterceptor;
+class BlockingManager;
 class BrowserApplication : public QApplication
 {
     Q_OBJECT
@@ -98,6 +99,7 @@ public:
     static void closeDownloadManager();
     static QNetworkAccessManager *networkAccessManager();
     static BookmarksManager *bookmarksManager();
+    static BlockingManager *blockingManager();
 
 #if defined(Q_OS_OSX)
     bool event(QEvent *event);
@@ -128,6 +130,7 @@ private:
     static DownloadManager *s_downloadManager;
     static QNetworkAccessManager *s_networkAccessManager;
     static BookmarksManager *s_bookmarksManager;
+    static BlockingManager *s_blockingManager;
 
     QList<QPointer<BrowserMainWindow> > m_mainWindows;
     QLocalServer *m_localServer;

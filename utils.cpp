@@ -35,3 +35,13 @@ QPixmap Utils::loadPixmapFromDataUri(const QString &dataBase64)
 {
     return QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(dataBase64.toUtf8())));
 }
+
+QStringList Utils::split(const QString &str, const QString &sep)
+{
+    if ( ! str.isEmpty())
+    {
+        return str.split(sep, QString::SkipEmptyParts);
+    }
+
+    return QStringList();
+}

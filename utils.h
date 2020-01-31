@@ -4,6 +4,7 @@
 class QString;
 class QIcon;
 class QPixmap;
+class QStringList;
 
 #ifndef __FUNC__
 #define __FUNC__ __PRETTY_FUNCTION__
@@ -25,6 +26,8 @@ public:
     static QIcon convertBase64ToIcon(const QString &iconBase64);
 
     static QPixmap loadPixmapFromDataUri(const QString &dataBase64);
+
+    static QStringList split(const QString &str, const QString &sep);
 };
 
 #endif // UTILS_H
